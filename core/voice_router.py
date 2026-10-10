@@ -52,6 +52,27 @@ def route(text: str):
         return "system_info", {}
     if re.fullmatch(r"(?:el kontrolü|el hareketleri|el hareketleriyle kontrol|holo|holo paneli)(?:n?[iıuü])? ?(?:aç|başlat)|(?:aç|başlat) (?:el kontrolü|el hareketleri|holo)(?: paneli)?", t):
         return "holo_ac", {}
+    m = re.fullmatch(r"youtube'?(?:da|de)? ara(?:t)?[:,]? (.+)|youtube'?(?:da|de) (.+?) ara", t)
+    if m:
+        return "youtube_ara", {"sorgu": (m.group(1) or m.group(2)).strip()}
+    m = re.fullmatch(r"haritada (.+?)(?: göster| ara| aç)?", t)
+    if m and not re.search(r"\b(ne|nasıl|kaç|neden|nerede|hangi|kim|mi|mı|mu|mü|var|yok)\b", m.group(1)):
+        return "harita_ara", {"yer": m.group(1).strip()}
+    m = re.fullmatch(r"vikipedi(?:'?(?:de|den))?(?: ara| oku)?[:,]? (.+)", t)
+    if m:
+        return "vikipedi", {"konu": m.group(1).strip()}
+    m = re.fullmatch(r"sözlük[:,]? (\w+)|(\w+) kelimesinin anlamı", t)
+    if m:
+        return "sozluk", {"kelime": m.group(1) or m.group(2)}
+    if re.fullmatch(r"şaka yap|bir şaka söyle|şaka söyle|fıkra anlat|beni güldür", t):
+        return "saka", {}
+    if re.fullmatch(r"ekran görüntüsü al|ekranı kaydet|screenshot al", t):
+        return "ekran_goruntusu", {}
+    if "iptal" in t and re.fullmatch(r"(?:bilgisayarı )?kapatmayı iptal et", t):
+        return "guc_islemi", {"islem": "iptal"}
+    m = re.fullmatch(r"bilgisayarı (kapat|yeniden başlat|uyut|kilitle)|(ekranı) kilitle", t)
+    if m:
+        return "guc_islemi", {"islem": {"kapat": "kapat", "yeniden başlat": "yeniden_baslat", "uyut": "uyut"}.get(m.group(1), "kilitle")}
     m = re.fullmatch(r"(?:aç|başlat|çalıştır) (.+)|(.+?)(?:'?[yı]?[iıuü]|'?[yı]?)? (?:aç|başlat)", t)
     if m:
         target = (m.group(1) or m.group(2) or "").strip()

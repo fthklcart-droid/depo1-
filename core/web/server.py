@@ -116,7 +116,7 @@ class WebUI:
                     self.write_log(f"→ {fast[0]}")
                     answer = self.registry.call(fast[0], fast[1], self.ctx).text
                 else:
-                    answer = self.ask(text)
+                    answer = self.ask(text, on_token=lambda t: self.emit("delta", text=t))
             except Exception as e:  # noqa: BLE001 - a model error must not kill the server
                 self.write_log(f"ERR: {type(e).__name__}: {e}")
                 return

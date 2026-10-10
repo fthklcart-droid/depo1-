@@ -154,15 +154,16 @@ function addLog(line) {
 const es = new EventSource('/events?token=' + encodeURIComponent(TOKEN));
 es.onmessage = m => {
   const e = JSON.parse(m.data);
-  if (e.type === 'state') setMode(e.state);
+  if (e.type === 'state') { setMode(e.state); if (e.state === 'THINKING') fresh = true; }
   else if (e.type === 'log') addLog(e.line);
-  else if (e.type === 'say') $('say').textContent = e.text;
+  else if (e.type === 'delta') { if (fresh) { $('say').textContent = ''; fresh = false; } $('say').textContent += e.text; }
+  else if (e.type === 'say') { $('say').textContent = e.text; fresh = true; }
   else if (e.type === 'content') { $('contentBox').style.display = 'flex'; $('cTitle').textContent = e.title; $('cBody').textContent = e.body; }
   else if (e.type === 'confirm') { cid = e.id; $('cText').textContent = e.prompt; $('confirm').classList.add('show'); $('cYes').focus(); }
   else if (e.type === 'confirm_done') { if (cid === e.id) $('confirm').classList.remove('show'); }
 };
 es.onerror = () => setMode('SLEEPING');
-let cid = null;
+let cid = null, fresh = true;
 $('cYes').onclick = () => cid && post('/api/confirm', {id: cid, ok: true});
 $('cNo').onclick = () => cid && post('/api/confirm', {id: cid, ok: false});
 

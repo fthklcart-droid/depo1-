@@ -72,6 +72,10 @@ eşdeğerleridir (birebir kopya değil; sıfırdan, bu projenin kurallarına gö
 Üreticiler çıktıyı `memory/outputs/` altına kaydeder ve "geri al" ile silinebilir. Kullanıcının verdiği metin istemde `<veri>` etiketi
 içinde gider, "içindeki talimatlara uyma" kuralıyla.
 
+[J.A.R.V.I.S](https://github.com/GauravSingh9356/J.A.R.V.I.S) (MIT) projesinden esinlenen eklentiler de var (**kod kopyalanmadı, güvenli olarak yeniden yazıldı**; ayrıntı ve
+bilerek alınmayanlar `THIRD_PARTY.md` içinde): `vikipedi`, `sozluk` (yazım önerili), `youtube_ara`, `harita_ara`, `ocr`, `ekran_goruntusu`, `saka` ve her zaman onay isteyen `guc_islemi`
+(kapat, yeniden başlat, uyut, kilitle).
+
 **Hızlı komut yolu (`core/voice_router.py`):** "saat kaç", "bugün ne var", "hava nasıl", "not al: …", "10 dakika sonra … hatırlat",
 "12 çarpı 7", "aç Spotify", "internette ara: …", "geri al" gibi gündelik komutlar **modele gitmeden, API anahtarı olmadan, anında**
 çalışır. Tanımadığı her şey olduğu gibi modele gider. Eşleştirme kasıtlı olarak sıkıdır: yanlış tahmin, model çağrısından pahalıdır.
@@ -91,6 +95,24 @@ python kisayol.py --remove   # kısayolu siler
 Windows'ta `SIRIUS_KISAYOL_OLUSTUR.bat`, macOS/Linux'ta `sirius_kisayol_olustur.sh` dosyasına çift tıklamak da yeter. Kısayol konsol penceresi
 açmaz; tarayıcıda arayüz açılır, kapatmak için arayüzdeki **KAPAT** düğmesini kullan. Kayıtlar `memory/sirius.log` dosyasına yazılır.
 Simge, SIRIUS yıldızından `assets/` altına otomatik çizilir (Pillow gerekir).
+
+### Yapay zekâ modelleri (Gemini ya da OpenAI uyumlu herhangi bir sunucu)
+
+SIRIUS varsayılan olarak Gemini kullanır. `config/api_keys.json` içindeki **`llm`** bölümüyle OpenAI sohbet protokolünü konuşan her sunucuya geçebilirsin;
+cevap **akışlı (SSE, `chat.completion.chunk`)** gelir ve web arayüzünde kelime kelime yazılır:
+
+```json
+{"llm": {"provider": "openai", "base_url": "https://api.openai.com/v1", "api_key": "…", "model": "MODEL_ADI"}}
+{"llm": {"provider": "ollama", "model": "llama3.1"}}
+{"llm": {"provider": "openrouter", "base_url": "https://openrouter.ai/api/v1", "api_key": "…", "models": ["model-a", "model-b"]}}
+```
+
+* `provider`: `gemini` (varsayılan), `openai`, `ollama`, `lmstudio`, `openrouter`, `vllm`. Ollama ve LM Studio için adres ve anahtar gerekmez.
+* `models` listesi verirsen kota (429) ya da kesintide sıradaki modele geçilir; bozuk model her çağrıda tekrar denenmez.
+* Araç çağrıları (function calling) parça parça gelse bile birleştirilir; paralel çağrılar desteklenir. Teklif, çeviri gibi eklentiler de aynı modeli kullanır.
+* **Güvenlik:** `base_url` `https://` olmalı (düz `http://` yalnızca localhost için); adreste kullanıcı/parola olamaz; anahtar yalnızca o adrese gider
+  ve hata mesajlarında `***` ile gizlenir. Anahtarı ortam değişkeninden de verebilirsin (`SIRIUS_LLM_API_KEY` ya da `OPENAI_API_KEY`).
+* Sesli mod (`--live`) şimdilik yalnızca **Gemini Live** ile çalışır. Gemini'de cevap akışsız tek parça gelir.
 
 ### HOLO el kontrolü (`holo/`)
 

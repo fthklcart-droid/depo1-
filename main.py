@@ -22,6 +22,10 @@ from pathlib import Path  # noqa: E402
 ROOT = Path(__file__).resolve().parent
 
 
+NO_MODEL = ("Yapay zekâ modeli ayarlı değil. Gemini için GEMINI_API_KEY ortam değişkenini (ya da config/api_keys.json -> gemini_api_key), "
+            "başka bir sağlayıcı için config/api_keys.json -> \"llm\" bölümünü doldurun (bkz. config/api_keys.example.json).")
+
+
 def build_runtime(ui):
     cfg, memory = Config(), Memory()
     ctx = Context(memory=memory, confirm=ui.confirm, notify=ui.write_log,
@@ -34,14 +38,14 @@ def build_runtime(ui):
 
 def run_text(ui) -> int:
     from core.agent import Agent
-    from core.backends import GeminiBackend
+    from core.backends import make_backend
 
     cfg, ctx, reg = build_runtime(ui)
-    if not cfg.api_key:
-        print("Gemini API anahtarı yok. GEMINI_API_KEY ortam değişkenini ya da config/api_keys.json "
-              "içindeki gemini_api_key alanını ayarlayın.")
+    backend = make_backend(cfg)
+    if backend is None:
+        print(NO_MODEL)
         return 1
-    agent = Agent(GeminiBackend(cfg.api_key), reg, ctx, cfg.get("assistant_name"))
+    agent = Agent(backend, reg, ctx, cfg.get("assistant_name"))
     print(f"{cfg.get('assistant_name')} hazır - {len(reg.tools)} yetenek. /yardim için yazın.")
     while True:
         try:
@@ -67,7 +71,9 @@ def run_text(ui) -> int:
                 print(quick)
                 continue
             try:
-                print(agent.ask(line))
+                streamed = []
+                answer = agent.ask(line, on_token=lambda t: (streamed.append(1), print(t, end="", flush=True)))
+                print() if streamed else print(answer)
             except Exception as e:  # noqa: BLE001 - a model error must not end the REPL
                 print(f"Hata: {e}")
 
@@ -77,7 +83,7 @@ def run_live(ui) -> int:
 
     cfg, ctx, reg = build_runtime(ui)
     if not cfg.api_key:
-        print("Gemini API anahtarı yok (GEMINI_API_KEY ya da config/api_keys.json).")
+        print("Sesli mod Gemini Live gerektirir: GEMINI_API_KEY ya da config/api_keys.json -> gemini_api_key.")
         return 1
     session = LiveSession(ui, reg, ctx, cfg)
     try:
@@ -107,8 +113,10 @@ def run_web(args) -> int:
     print(f"SIRIUS arayüzü: {srv.url}\n(bu adres yalnızca bu bilgisayardan ve bu oturum için çalışır)")
     if not args.no_browser:
         webbrowser.open(srv.url)
-    if not cfg.api_key:
-        ui.write_log("SYS: Gemini API anahtarı yok; Bağlantılar çalışır ama sohbet kapalı.")
+    from core.backends import make_backend
+    backend = make_backend(cfg)
+    if backend is None and not args.live:
+        ui.write_log("SYS: Yapay zekâ modeli ayarlı değil; hızlı komutlar ve Bağlantılar çalışır, sohbet kapalı.")
         threading.Event().wait()
     if args.live:
         from core.live.session import LiveSession
@@ -120,8 +128,7 @@ def run_web(args) -> int:
             pass
         return 0
     from core.agent import Agent
-    from core.backends import GeminiBackend
-    ui.ask = Agent(GeminiBackend(cfg.api_key), reg, ctx, cfg.get("assistant_name")).ask
+    ui.ask = Agent(backend, reg, ctx, cfg.get("assistant_name")).ask
     try:
         threading.Event().wait()
     except KeyboardInterrupt:

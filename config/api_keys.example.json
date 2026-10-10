@@ -12,5 +12,12 @@
   "home_assistant": {
     "url": "http://homeassistant.local:8123",
     "token": "uzun-omurlu-token"
+  },
+  "llm": {
+    "provider": "openai",
+    "base_url": "https://api.openai.com/v1",
+    "api_key": "BURAYA_ANAHTAR",
+    "model": "MODEL_ADI",
+    "_not": "provider: gemini (varsayılan) | openai | ollama | lmstudio | openrouter. Yerel sunucuda api_key gerekmez. Birden fazla model için 'models': [...] yaz; kota ya da kesintide sıradakine geçilir."
   }
 }

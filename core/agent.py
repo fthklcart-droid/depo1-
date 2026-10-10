@@ -11,7 +11,7 @@ MAX_STEPS = 12
 
 
 class Backend(Protocol):
-    def generate(self, system: str, history: list[dict], tools: list[dict]) -> dict:
+    def generate(self, system: str, history: list[dict], tools: list[dict], on_token=None) -> dict:
         """Return {'text': str, 'calls': [{'name': str, 'args': dict}]}."""
 
 
@@ -24,11 +24,12 @@ class Agent:
         self.backend, self.reg, self.ctx, self.name = backend, reg, ctx, name
         self.history: list[dict] = []
 
-    def ask(self, text: str) -> str:
+    def ask(self, text: str, on_token=None) -> str:
         self.history.append({"role": "user", "text": text})
         for _ in range(MAX_STEPS):
             system = build_system(self.ctx, self.reg, self.name)  # memory may have changed
-            reply = self.backend.generate(system, self.history, self.reg.declarations())
+            reply = (self.backend.generate(system, self.history, self.reg.declarations(), on_token=on_token) if on_token
+                     else self.backend.generate(system, self.history, self.reg.declarations()))
             calls = reply.get("calls") or []
             self.history.append({"role": "model", "text": reply.get("text", ""), "calls": calls, "raw": reply.get("raw")})
             if not calls:
@@ -38,6 +39,6 @@ class Agent:
                 self.ctx.log(f"→ {c['name']}({c['args']})")
                 out = self.reg.call(c["name"], c["args"], self.ctx).text
                 self.ctx.log(f"← {out[:200]}")
-                results.append({"name": c["name"], "response": out[:8000]})
+                results.append({"name": c["name"], "response": out[:8000], "id": c.get("id")})
             self.history.append({"role": "tool", "results": results})
         return "I ran out of steps before finishing. Tell me to continue and I will pick up from here."
