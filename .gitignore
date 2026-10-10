@@ -9,3 +9,6 @@ memory/*.old
 sirius-asistan.zip
 SIRIUS_KOD.md
 SIRIUS_KOD_PHANTOM.md
+# paketler (kişisel olanlar API anahtarı içerir, asla commit edilmez)
+sirius-*.zip
+*.zip
