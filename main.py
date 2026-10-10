@@ -2,6 +2,7 @@
 
     python main.py            text assistant in the terminal
     python main.py --live     voice assistant (Gemini Live)
+    python main.py --web      the HUD in your browser (add --live for voice)
 """
 from core import bootstrap
 
@@ -78,10 +79,51 @@ def run_live(ui) -> int:
     return 0
 
 
+def run_web(args) -> int:
+    import threading
+    import webbrowser
+
+    from core.web.server import Server, WebUI
+
+    ui = WebUI()
+    cfg, ctx, reg = build_runtime(ui)
+    ctx.log = lambda m: ui.write_log(m[:160]) if m.startswith(("→", "←")) else None
+    ui.registry, ui.ctx, ui.cfg = reg, ctx, cfg
+    srv = Server(ui, args.port).start()
+    print(f"SIRIUS arayüzü: {srv.url}\n(bu adres yalnızca bu bilgisayardan ve bu oturum için çalışır)")
+    if not args.no_browser:
+        webbrowser.open(srv.url)
+    if not cfg.api_key:
+        ui.write_log("SYS: Gemini API anahtarı yok; Bağlantılar çalışır ama sohbet kapalı.")
+        threading.Event().wait()
+    if args.live:
+        from core.live.session import LiveSession
+        session = LiveSession(ui, reg, ctx, cfg)
+        ui.say = session.send_text
+        try:
+            asyncio.run(session.run())
+        except KeyboardInterrupt:
+            pass
+        return 0
+    from core.agent import Agent
+    from core.backends import GeminiBackend
+    ui.ask = Agent(GeminiBackend(cfg.api_key), reg, ctx, cfg.get("assistant_name")).ask
+    try:
+        threading.Event().wait()
+    except KeyboardInterrupt:
+        print("\nKapatılıyor...")
+    return 0
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="Kişisel yapay zekâ asistanı")
     ap.add_argument("--live", action="store_true", help="sesli mod (Gemini Live)")
+    ap.add_argument("--web", action="store_true", help="arayüzü tarayıcıda aç")
+    ap.add_argument("--port", type=int, default=0, help="web arayüzü portu (varsayılan: boş bir port)")
+    ap.add_argument("--no-browser", action="store_true", help="tarayıcıyı otomatik açma")
     args = ap.parse_args(argv)
+    if args.web:
+        return run_web(args)
     ui = ConsoleUI()
     return run_live(ui) if args.live else run_text(ui)
 

@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SIRIUS</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#04070D;--panel:rgba(10,18,32,.72);--line:#12263A;--line2:#1B3B57;--ice:#8FE3FF;--ice2:#CFF3FF;--text:#D6E8F5;--mute:#7F9BB2;--amber:#FFD58A}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:'Chakra Petch',system-ui,sans-serif}
+body{background-image:linear-gradient(rgba(143,227,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(143,227,255,.035) 1px,transparent 1px);background-size:40px 40px}
+button{font-family:inherit;cursor:pointer}
+.app{height:100%;display:flex;flex-direction:column;min-height:0}
+.top{height:64px;flex:none;display:flex;align-items:center;gap:16px;padding:0 24px;border-bottom:1px solid var(--line);background:rgba(4,7,13,.85)}
+.logo{font-size:20px;font-weight:600;letter-spacing:.34em}
+.chip{display:flex;align-items:center;gap:8px;padding:6px 12px;border:1px solid var(--line2);border-radius:2px;font:12px 'IBM Plex Mono',monospace;letter-spacing:.12em}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--ice)}
+.sp{flex:1}
+.btn{height:36px;padding:0 16px;background:transparent;color:var(--ice);border:1px solid var(--line2);border-radius:2px;font-size:13px;letter-spacing:.14em}
+.btn:hover{border-color:var(--ice)}
+.btn.on{background:rgba(143,227,255,.14);color:var(--ice2);border-color:var(--ice)}
+.btn.solid{background:var(--ice);color:var(--bg);border:none;font-weight:700}
+.btn:focus-visible,input:focus-visible{outline:2px solid var(--ice);outline-offset:2px}
+.body{flex:1;min-height:0;display:flex;gap:24px;padding:24px;overflow:hidden}
+.col{display:flex;flex-direction:column;gap:16px;min-height:0}
+.left{width:300px}.right{width:320px;overflow:auto}
+.center{flex:1;min-width:0;align-items:center;gap:10px;overflow:auto}
+.panel{border:1px solid var(--line);background:var(--panel);padding:16px;display:flex;flex-direction:column;gap:10px}
+.h{font-size:12px;letter-spacing:.22em;color:var(--mute)}
+.log{font:12px/1.55 'IBM Plex Mono',monospace;display:flex;flex-direction:column;gap:7px;overflow:auto;min-height:0;flex:1}
+.log div{word-break:break-word}.sys{color:var(--mute)}.you{color:var(--ice)}.bot{color:var(--amber)}.err{color:#FF8A8A}
+.stage{width:360px;height:360px;flex:none}
+.say{min-height:44px;max-width:560px;text-align:center;font-size:17px;line-height:1.4}
+.row{display:flex;gap:10px;align-items:center;width:min(560px,100%)}
+input[type=text]{flex:1;height:44px;background:#070E18;border:1px solid var(--line2);border-radius:2px;color:var(--text);padding:0 14px;font:13px 'IBM Plex Mono',monospace}
+.sw{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.sw .btn{height:32px;padding:0 12px;font-size:12px;letter-spacing:.1em}
+.tag{padding:5px 9px;border:1px solid var(--line2);border-radius:2px;font:12px 'IBM Plex Mono',monospace;color:#B7D3E6}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.confirm{border:1px solid var(--amber);background:rgba(255,213,138,.07);padding:16px;display:none;flex-direction:column;gap:12px}
+.confirm.show{display:flex}
+.confirm pre{margin:0;font:12px 'IBM Plex Mono',monospace;color:#B7D3E6;padding:8px 10px;background:#070E18;white-space:pre-wrap;word-break:break-word}
+pre.c{margin:0;font:12px/1.5 'IBM Plex Mono',monospace;white-space:pre-wrap;word-break:break-word;max-height:220px;overflow:auto}
+.modal{position:fixed;inset:0;background:rgba(2,4,8,.78);display:none;align-items:center;justify-content:center;padding:16px;z-index:5}
+.modal.show{display:flex}
+.card{width:min(680px,100%);max-height:100%;background:#060B14;border:1px solid var(--line2);display:flex;flex-direction:column;min-height:0}
+.tabs{display:flex;border-bottom:1px solid var(--line)}
+.tab{flex:1;height:46px;background:transparent;border:none;border-bottom:2px solid transparent;color:#9DB6C9;font-size:12px;letter-spacing:.14em}
+.tab[aria-pressed=true]{background:rgba(143,227,255,.1);color:var(--ice2);border-bottom-color:var(--ice)}
+.pane{padding:18px 22px;overflow:auto;display:flex;flex-direction:column;gap:10px;min-height:0}
+.item{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line);background:var(--panel)}
+.item .t{flex:1;min-width:0;word-break:break-word;font-size:14px}.item .n{font:12px 'IBM Plex Mono',monospace;color:var(--mute)}
+.x{width:32px;height:32px;background:transparent;border:1px solid #3A5670;border-radius:2px;color:#9DB6C9;font-size:16px}
+.note{font-size:12px;line-height:1.5;color:var(--mute)}
+.warn{border-left:2px solid var(--amber);padding-left:12px}
+.acct{display:flex;align-items:center;gap:14px;padding:12px 14px;border:1px solid var(--line);background:var(--panel)}
+.mono{width:40px;height:40px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--mute)}
+@media (max-width:1100px){.body{flex-direction:column;overflow:auto}.left,.right{width:auto}.left .log{max-height:200px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><path d="M13 1 L14.6 11.4 L25 13 L14.6 14.6 L13 25 L11.4 14.6 L1 13 L11.4 11.4 Z" fill="#8FE3FF"/><circle cx="21" cy="5" r="2" fill="#FFD58A"/></svg>
+    <div class="logo">SIRIUS</div>
+    <div class="chip"><span class="dot" id="stDot"></span><span id="stLabel">BAĞLANIYOR</span></div>
+    <div class="sp"></div>
+    <button class="btn" id="undoBtn" title="Son işlemi geri al">GERİ AL</button>
+    <button class="btn on" id="connBtn">BAĞLANTILAR</button>
+  </div>
+  <div class="body">
+    <div class="col left">
+      <div class="panel" style="flex:1;min-height:0"><div class="h">ETKİNLİK</div><div class="log" id="log" aria-live="polite"></div></div>
+    </div>
+    <div class="col center">
+      <div class="stage" id="stage"></div>
+      <canvas id="wave" width="560" height="60" role="img" aria-label="Ses dalga biçimi" style="width:min(560px,100%);height:60px"></canvas>
+      <div class="say" id="say"></div>
+      <form class="row" id="form"><input type="text" id="inp" autocomplete="off" aria-label="Komut yaz" placeholder="Bir şey yaz ya da iste…"><button class="btn solid" style="width:56px;padding:0" aria-label="Gönder">↵</button></form>
+      <div class="h">AVATAR</div>
+      <div class="sw" id="avatars"></div>
+    </div>
+    <div class="col right">
+      <div class="panel"><div class="h">BUGÜN</div><pre class="c" id="today">…</pre></div>
+      <div class="panel"><div class="h">YETENEKLER <span id="nTools"></span></div><div class="tags" id="tools"></div></div>
+      <div class="confirm" id="confirm">
+        <div class="h" style="color:var(--amber)">ONAY GEREKİYOR</div>
+        <pre id="cText"></pre>
+        <div style="display:flex;gap:8px"><button class="btn" style="flex:1;color:var(--text);border-color:#3A5670" id="cNo">REDDET</button><button class="btn solid" style="flex:1;background:var(--amber)" id="cYes">ONAYLA</button></div>
+        <div class="note">Bu düğmeyi yalnızca sen basabilirsin. Model kendi kendine onaylayamaz.</div>
+      </div>
+      <div class="panel" id="contentBox" style="display:none"><div class="h" id="cTitle"></div><pre class="c" id="cBody"></pre></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="card">
+    <div style="padding:18px 22px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line)"><div class="logo" style="font-size:17px;letter-spacing:.28em" id="mTitle">BAĞLANTILAR</div><div class="sp"></div><button class="x" id="mClose" aria-label="Kapat">×</button></div>
+    <div class="tabs" id="tabs"></div>
+    <div class="pane" id="pane"></div>
+  </div>
+</div>
+
+<script src="/s3d.js"></script>
+<script>
+const TOKEN = '__TOKEN__';
+const H = {'X-Token': TOKEN, 'Content-Type': 'application/json'};
+const $ = id => document.getElementById(id);
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+const post = (p, body) => fetch(p, {method: 'POST', headers: H, body: JSON.stringify(body)}).then(r => r.json());
+const get = p => fetch(p, {headers: {'X-Token': TOKEN}}).then(r => r.json());
+
+/* ---- state, avatars ---- */
+const COLORS = {LISTENING: '#8FE3FF', THINKING: '#FFD58A', SPEAKING: '#CFF3FF', SLEEPING: '#6B8499'};
+const LABELS = {LISTENING: 'DİNLİYOR', THINKING: 'DÜŞÜNÜYOR', SPEAKING: 'KONUŞUYOR', SLEEPING: 'UYKUDA'};
+let mode = 'LISTENING', stop = null, kind = 'holo';
+try { kind = localStorage.getItem('sirius.avatar') || 'holo'; } catch (e) {}
+const KINDS = [['holo', 'HOLO KAFA'], ['neural', 'NÖRON'], ['brain', 'BEYİN'], ['sphere', 'KUANTUM'], ['scan', 'ALTIN']];
+function setAvatar(k) {
+  kind = k; try { localStorage.setItem('sirius.avatar', k); } catch (e) {}
+  if (stop) stop();
+  const st = $('stage'); st.textContent = '';
+  const c = el('canvas'); st.appendChild(c);
+  stop = S3D.mount(c, k, () => mode);
+  document.querySelectorAll('#avatars button').forEach(b => b.classList.toggle('on', b.dataset.k === k));
+}
+KINDS.forEach(([k, l]) => { const b = el('button', 'btn', l); b.dataset.k = k; b.onclick = () => setAvatar(k); $('avatars').appendChild(b); });
+function setMode(m) { mode = m; $('stLabel').textContent = LABELS[m] || m; $('stDot').style.background = COLORS[m]; }
+setAvatar(kind); setMode('LISTENING');
+
+/* ---- waveform ---- */
+const wc = $('wave'), wx = wc.getContext('2d');
+(function wave(t) {
+  const amp = {LISTENING: .3, THINKING: .15, SPEAKING: 1, SLEEPING: .04}[mode] || .3;
+  wx.clearRect(0, 0, 560, 60); wx.fillStyle = COLORS[mode] || '#8FE3FF';
+  for (let i = 0; i < 64; i++) {
+    const env = Math.sin(i / 63 * Math.PI), r = Math.abs(Math.sin(i * 12.9898) * 43758.5453 % 1);
+    const w = (Math.sin(t / 1000 * (3 + r * 5) + i) * .5 + .5);
+    const h = 3 + amp * env * (4 + w * (8 + r * 40));
+    wx.globalAlpha = .35 + env * .65; wx.fillRect(i * 8.75, 30 - h / 2, 5, h);
+  }
+  requestAnimationFrame(wave);
+})(0);
+
+/* ---- events ---- */
+function addLog(line) {
+  const d = el('div', /^Sen:/.test(line) ? 'you' : /^ERR|hata/i.test(line) ? 'err' : /^(→|←|SYS)/.test(line) ? 'sys' : 'bot', line);
+  const L = $('log'); L.appendChild(d); while (L.children.length > 150) L.removeChild(L.firstChild); L.scrollTop = L.scrollHeight;
+}
+const es = new EventSource('/events?token=' + encodeURIComponent(TOKEN));
+es.onmessage = m => {
+  const e = JSON.parse(m.data);
+  if (e.type === 'state') setMode(e.state);
+  else if (e.type === 'log') addLog(e.line);
+  else if (e.type === 'say') $('say').textContent = e.text;
+  else if (e.type === 'content') { $('contentBox').style.display = 'flex'; $('cTitle').textContent = e.title; $('cBody').textContent = e.body; }
+  else if (e.type === 'confirm') { cid = e.id; $('cText').textContent = e.prompt; $('confirm').classList.add('show'); $('cYes').focus(); }
+  else if (e.type === 'confirm_done') { if (cid === e.id) $('confirm').classList.remove('show'); }
+};
+es.onerror = () => setMode('SLEEPING');
+let cid = null;
+$('cYes').onclick = () => cid && post('/api/confirm', {id: cid, ok: true});
+$('cNo').onclick = () => cid && post('/api/confirm', {id: cid, ok: false});
+
+$('form').onsubmit = ev => { ev.preventDefault(); const t = $('inp').value.trim(); if (t) { post('/api/say', {text: t}); $('inp').value = ''; } };
+$('undoBtn').onclick = () => post('/api/undo', {}).then(r => addLog('SYS: ' + r.text));
+
+/* ---- right panels ---- */
+function refresh() {
+  get('/api/today').then(d => { $('today').textContent = d.events + '\n\n' + (d.todos || ''); });
+}
+get('/api/tools').then(ts => { $('nTools').textContent = ts.length; const T = $('tools'); ts.forEach(t => { const s = el('span', 'tag', t.name); s.title = t.description; T.appendChild(s); }); });
+refresh(); setInterval(refresh, 60000);
+
+/* ---- connections ---- */
+const ACCOUNTS = [['Instagram', 'I'], ['X', 'X'], ['YouTube', 'Y'], ['LinkedIn', 'in'], ['Telegram', 'T'], ['WhatsApp', 'W'], ['Facebook', 'F'], ['TikTok', 'Tk']];
+let tab = 'sites';
+const TABS = [['accounts', 'HESAPLAR'], ['sites', 'SİTELER'], ['files', 'DOSYALAR'], ['apps', 'UYGULAMALAR']];
+function parse(text) {
+  const out = {sites: [], files: [], apps: []};
+  (text || '').split('\n').forEach(l => {
+    let m;
+    if ((m = l.match(/^site: (\S+)(?: \(izleniyor\))?$/))) out.sites.push({url: m[1]});
+    else if ((m = l.match(/^dosya: (.+?) - (.*)$/))) out.files.push({path: m[1], note: m[2]});
+    else if ((m = l.match(/^uygulama: (.+?) \(takma ad: (.+)\)$/))) out.apps.push({name: m[1], alias: m[2]});
+  });
+  return out;
+}
+function adder(placeholders, onAdd, label) {
+  const f = el('form'); f.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap';
+  const ins = placeholders.map(p => { const i = el('input'); i.type = 'text'; i.placeholder = p; i.setAttribute('aria-label', p); i.style.minWidth = '140px'; f.appendChild(i); return i; });
+  const b = el('button', 'btn solid', label || 'EKLE'); f.appendChild(b);
+  f.onsubmit = e => { e.preventDefault(); onAdd(ins.map(i => i.value.trim())); };
+  return f;
+}
+function itemRow(title, note, onRemove) {
+  const r = el('div', 'item'); const t = el('div', 't'); t.appendChild(el('div', '', title)); if (note) t.appendChild(el('div', 'n', note)); r.appendChild(t);
+  const x = el('button', 'x', '×'); x.setAttribute('aria-label', 'Kaldır'); x.onclick = onRemove; r.appendChild(x); return r;
+}
+async function act(body) { const r = await post('/api/connections', body); addLog('SYS: ' + r.text); await renderPane(); refresh(); }
+async function renderPane() {
+  const pane = $('pane'); pane.textContent = '';
+  document.querySelectorAll('#tabs .tab').forEach(b => b.setAttribute('aria-pressed', b.dataset.k === tab));
+  if (tab === 'accounts') {
+    ACCOUNTS.forEach(([n, m]) => { const r = el('div', 'acct'); r.appendChild(el('div', 'mono', m)); const t = el('div'); t.style.flex = '1'; t.appendChild(el('div', '', n)); t.appendChild(el('div', 'n', 'Henüz desteklenmiyor')); r.appendChild(t); const b = el('button', 'btn', 'YAKINDA'); b.disabled = true; b.style.opacity = .5; r.appendChild(b); pane.appendChild(r); });
+    pane.appendChild(el('div', 'note warn', 'Sosyal hesap bağlama, her platformun kendi geliştirici onayını ve OAuth kurulumunu gerektirir; henüz yapılmadı. Siteler, dosyalar ve uygulamalar çalışıyor.'));
+    return;
+  }
+  const d = parse((await post('/api/connections', {action: 'list'})).text);
+  if (tab === 'sites') {
+    pane.appendChild(adder(['https://ornek.com'], ([u]) => u && act({action: 'add_site', url: u})));
+    pane.appendChild(el('div', 'note', 'Eklenen siteyi "şu siteyi oku" diyerek okutabilir ve özetletebilirsin.'));
+    d.sites.forEach(s => pane.appendChild(itemRow(s.url, '', () => act({action: 'remove_site', url: s.url}))));
+  } else if (tab === 'files') {
+    pane.appendChild(adder(['~/Belgeler/vergi (dosya ya da klasör)'], ([p]) => p && act({action: 'add_file', path: p})));
+    pane.appendChild(el('div', 'note', 'Eklenenler yerelde indekslenir; "belgelerimde … ara" diyebilirsin. Hiçbir şey dışarı gönderilmez.'));
+    d.files.forEach(f => pane.appendChild(itemRow(f.path, f.note, () => act({action: 'remove_file', path: f.path}))));
+  } else {
+    pane.appendChild(adder(['Uygulama adı', 'takma ad', 'komut (isteğe bağlı)'], ([n, a, c]) => n && act({action: 'add_app', name: n, alias: a, command: c})));
+    pane.appendChild(el('div', 'note', '"Spotify\'ı aç" demen yeterli. Komut yazarsan o çalıştırılır.'));
+    d.apps.forEach(a => pane.appendChild(itemRow(a.name, 'takma ad: ' + a.alias, () => act({action: 'remove_app', name: a.name}))));
+  }
+}
+TABS.forEach(([k, l]) => { const b = el('button', 'tab', l); b.dataset.k = k; b.onclick = () => { tab = k; renderPane(); }; $('tabs').appendChild(b); });
+$('connBtn').onclick = () => { $('modal').classList.add('show'); renderPane(); };
+$('mClose').onclick = () => $('modal').classList.remove('show');
+document.addEventListener('keydown', e => { if (e.key === 'Escape') $('modal').classList.remove('show'); });
+</script>
+</body>
+</html>

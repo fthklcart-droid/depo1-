@@ -12,8 +12,23 @@ TOOL = {
 }
 
 
+def _saved(t):
+    from core import store
+    for a in store.load("connections.json", {}).get("apps", []):
+        if t.lower() in (a["name"].lower(), (a.get("alias") or "").lower()):
+            return a
+    return None
+
+
 def run(p, ctx):
     t, s = p["target"].strip(), platform.system()
+    app = _saved(t)
+    if app and app.get("command"):          # a command the user saved themselves
+        import shlex
+        subprocess.Popen(shlex.split(app["command"]), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        return f"Started {app['name']}"
+    if app:
+        t = app["name"]
     is_path = t.startswith(("http://", "https://", "~", "/")) or os.path.exists(os.path.expanduser(t))
     if is_path:
         t = os.path.expanduser(t)

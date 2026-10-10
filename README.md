@@ -9,7 +9,8 @@ pip install -r requirements.txt
 export GEMINI_API_KEY=...        # ya da config/api_keys.json -> {"gemini_api_key": "..."}
 python main.py                   # terminalde metin asistanı
 python main.py --live            # sesli mod (Gemini Live)
-python -m pytest tests           # 35 test, ağ ve donanım gerekmez
+python main.py --web             # arayüz tarayıcıda (3B avatarlar, Bağlantılar); --live ile birlikte sesli
+python -m pytest tests           # 45 test, ağ ve donanım gerekmez
 ```
 
 ## Yetenekler
@@ -50,6 +51,19 @@ Ayarlar `config/api_keys.json` içinde:
  "email": {"user": "ben@ornek.com", "password": "uygulama-parolası", "imap_host": "imap.ornek.com", "smtp_host": "smtp.ornek.com"},
  "home_assistant": {"url": "http://homeassistant.local:8123", "token": "uzun-ömürlü-token"}}
 ```
+
+### Web arayüzü (`python main.py --web`)
+
+Tasarladığım HUD, gerçek asistana bağlı: 5 tane 3B avatar (Holo Kafa, Nöron, Beyin, Kuantum, Altın; asistanın durumuna göre
+dinler, düşünür, konuşur), etkinlik günlüğü, bugünün takvimi, yetenek listesi, **onay kartı** ve **Bağlantılar** penceresi.
+
+* **Bağlantılar:** *Siteler* (ekle, sil; "şu siteyi oku" ile okutulur), *Dosyalar* (dosya ya da klasör, `doc_search` ile yerelde
+  indekslenir), *Uygulamalar* (ad, takma ad, isteğe bağlı komut; `open_app` bunları tanır). Hepsi geri alınabilir.
+* **Sosyal hesaplar henüz yok.** Penceredeki Hesaplar sekmesi "Henüz desteklenmiyor" der; gerçek bağlantı her platformun
+  geliştirici onayını ve OAuth'unu gerektirir.
+* **Güvenlik:** yalnızca `127.0.0.1`'e bağlanır, oturuma özel belirteç ister, Host başlığını denetler (DNS rebinding), onay düğmesini
+  yalnızca tarayıcıdaki sen basabilirsin. Web'den ya da modelden gelen metin sayfaya `textContent` ile yazılır, HTML olarak değil.
+* Metin modunda ses yoktur; konuşma duruşu cevap uzunluğuna göre kısa süre gösterilir. Sesli mod için `--web --live`.
 
 ### Araştırmadan çıkan kararlar
 
@@ -116,6 +130,7 @@ core/
   yalnızca yapılandırma kurulumu ve saf mantık test edildi, **uçtan uca canlı oturum denenmedi**.
 * Avatar çizimi, uyandırma kelimesi motoru, push-to-talk kısayolu ve telefon panosu bu depoda yok;
   `UI` Protocol'ü, `LiveSession.wake_detector` ve `MicGate.ptt()` bunlar için takılma noktalarıdır.
+* Web arayüzü Chromium'da uçtan uca denendi (yazma, araç günlüğü, Bağlantılar, avatar değiştirme); Firefox/Safari denenmedi.
 * E-posta, Home Assistant ve `currency_convert`/`rss_feed` gerçek sunucularla denenmedi; testler onay kapılarını, ayrıştırmayı ve hata yollarını doğrular.
 * Prompt injection savunması azaltır, ortadan kaldırmaz; onay kapıları asıl güvencedir.
 * `web_search` DuckDuckGo HTML sayfasını ayrıştırır; sayfa biçimi değişirse bozulabilir.

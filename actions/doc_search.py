@@ -53,7 +53,8 @@ def build(root: Path, idx: dict) -> tuple[int, int, int]:
     """Incremental: only files whose mtime changed are re-read. Returns (added, unchanged, removed)."""
     docs, added, same = idx["docs"], 0, 0
     seen = set()
-    for dirpath, dirs, files in os.walk(root):
+    walk = [(str(root.parent), [], [root.name])] if root.is_file() else os.walk(root)
+    for dirpath, dirs, files in walk:
         dirs[:] = [d for d in dirs if d not in SKIP_DIRS and not d.startswith(".")]
         for f in files:
             p = Path(dirpath) / f
@@ -115,8 +116,8 @@ def run(p, ctx):
     a = p["action"]
     if a == "index":
         root = Path(os.path.expanduser(p.get("path", ""))).resolve()
-        if not root.is_dir():
-            return f"Not a folder: {root}"
+        if not root.exists():
+            return f"Not found: {root}"
         added, same, gone = build(root, idx)
         store.save(INDEX, idx)
         return f"Indexed {root}: {added} new/changed, {same} unchanged, {gone} removed. {len(idx['docs'])} files total."
