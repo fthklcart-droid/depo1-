@@ -5,7 +5,7 @@ import shutil
 import time
 from pathlib import Path
 
-TRASH = Path.home() / ".jarvis_trash"
+TRASH = Path.home() / ".sirius_trash"
 MAX_READ = 20000
 MAX_UNDO_BYTES = 1_000_000
 

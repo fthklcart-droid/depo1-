@@ -19,12 +19,12 @@ def harden_console() -> None:
 
 def hide_subprocess_windows() -> None:
     """Windows only: no console flash for any child process."""
-    if platform.system() != "Windows" or getattr(subprocess.Popen, "_jarvis_patched", False):
+    if platform.system() != "Windows" or getattr(subprocess.Popen, "_sirius_patched", False):
         return
     Orig = subprocess.Popen
 
     class _Popen(Orig):
-        _jarvis_patched = True
+        _sirius_patched = True
 
         def __init__(self, args, **kw):
             kw["creationflags"] = kw.get("creationflags", 0) | subprocess.CREATE_NO_WINDOW

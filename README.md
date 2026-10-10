@@ -1,4 +1,4 @@
-# JARVIS — yeniden tasarlanmış kişisel asistan
+# SIRIUS — yeniden tasarlanmış kişisel asistan
 
 Gemini ile çalışan, bilgisayarını kontrol edebilen, ses ve metin modlu asistan. Önceki sürümün
 2300 satırlık tek parça `main.py` dosyası, test edilebilir küçük modüllere bölündü; yetenek sayısı
@@ -58,7 +58,7 @@ Ayarlar `config/api_keys.json` içinde:
   [Nexos](https://nexos.ai/blog/ai-personal-assistant/)). Bu yüzden `daily_briefing` ayrı özelliklerin üstüne kurulu bir araç.
 * Aynı kaynaklar asıl ödünleşimi **izinler** olarak gösteriyor. Karşılığı: göndermeden/kilit açmadan önce insan onayı,
   `audit_log`, ve yerel-öncelikli belge araması.
-* Açık kaynak JARVIS benzerleri ([isair/jarvis](https://docsearch.algolia.com/mcp/docs/repo/isair/jarvis)) Home Assistant ve yerel bilgi
+* Açık kaynak SIRIUS benzerleri ([isair/sirius](https://docsearch.algolia.com/mcp/docs/repo/isair/sirius)) Home Assistant ve yerel bilgi
   tabanı sunuyor; ikisini de ekledim. (MCP istemcisi eklenmedi: ek bağımlılık ve ayrı güvenlik incelemesi gerektirir.)
 * Gemini 3 çok turlu araç çağrılarında **thought signature**'ların geri gönderilmesini istiyor
   ([belgeler](https://ai.google.dev/gemini-api/docs/tools)). Önceki sürümüm geçmişi yeniden kurarken bunları düşürüyordu; şimdi modelin
@@ -94,7 +94,7 @@ core/
 
 ### Tasarım kararları ve eski koda göre düzeltmeler
 
-* **Tek sınıf yerine sorumluluklar.** `JarvisLive` ses, vizyon, onay, kayıt, bağlantı politikası ve
+* **Tek sınıf yerine sorumluluklar.** `SiriusLive` ses, vizyon, onay, kayıt, bağlantı politikası ve
   araç dağıtımını bir arada tutuyordu. Şimdi her biri ayrı ve donanımsız test edilebilir.
 * **TaskGroup hatalarının asıl sebebi artık okunuyor.** Eski kod `str(e)` ile kota / API anahtarı /
   ağ hatalarını arıyordu, ama `TaskGroup` hataları `"unhandled errors in a TaskGroup (1 sub-exception)"`

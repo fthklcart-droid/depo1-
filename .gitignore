@@ -2,8 +2,8 @@ __pycache__/
 *.pyc
 config/api_keys.json
 memory/*.json
-.jarvis_trash/
+.sirius_trash/
 .venv/
 memory/*.jsonl
 memory/*.old
-jarvis-asistan.zip
+sirius-asistan.zip

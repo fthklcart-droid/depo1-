@@ -7,7 +7,7 @@ from pathlib import Path
 PATH = Path(__file__).resolve().parent.parent / "config" / "api_keys.json"
 
 DEFAULTS = {
-    "assistant_name": "JARVIS", "user_name": "", "voice": "Charon",
+    "assistant_name": "SIRIUS", "user_name": "", "voice": "Charon",
     "wake_word": False, "push_to_talk": False, "proactive_audio": True, "briefing": True,
     "input_device": None, "output_device": None, "sleep_after_s": 120,
     "live_models": ["models/gemini-3.1-flash-live-preview", "models/gemini-2.5-flash-native-audio-preview-12-2025"],

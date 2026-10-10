@@ -11,7 +11,7 @@ INDEX = "doc_index.json"
 EXT = {".txt", ".md", ".rst", ".py", ".js", ".ts", ".json", ".csv", ".html", ".log", ".tex", ".yaml", ".yml", ".docx", ".pdf"}
 CHUNK = 800
 MAX_FILE = 5_000_000
-SKIP_DIRS = {".git", "node_modules", "__pycache__", ".venv", "venv", ".jarvis_trash"}
+SKIP_DIRS = {".git", "node_modules", "__pycache__", ".venv", "venv", ".sirius_trash"}
 
 TOOL = {
     "name": "doc_search",

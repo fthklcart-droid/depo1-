@@ -1,3 +1,3 @@
 import os
 
-os.environ["JARVIS_NO_AUDIT"] = "1"
+os.environ["SIRIUS_NO_AUDIT"] = "1"

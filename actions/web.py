@@ -4,7 +4,7 @@ import re
 import urllib.parse
 import urllib.request
 
-UA = {"User-Agent": "Mozilla/5.0 (JarvisAssistant)"}
+UA = {"User-Agent": "Mozilla/5.0 (SiriusAssistant)"}
 
 
 def _get(url, timeout=10):

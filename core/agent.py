@@ -15,12 +15,12 @@ class Backend(Protocol):
         """Return {'text': str, 'calls': [{'name': str, 'args': dict}]}."""
 
 
-def build_system(ctx: Context, reg: Registry, name: str = "JARVIS") -> str:
+def build_system(ctx: Context, reg: Registry, name: str = "SIRIUS") -> str:
     return sysprompt.build(name, reg.declarations(), ctx.memory.prompt_block(), has_mic=False)
 
 
 class Agent:
-    def __init__(self, backend: Backend, reg: Registry, ctx: Context, name: str = "JARVIS"):
+    def __init__(self, backend: Backend, reg: Registry, ctx: Context, name: str = "SIRIUS"):
         self.backend, self.reg, self.ctx, self.name = backend, reg, ctx, name
         self.history: list[dict] = []
 

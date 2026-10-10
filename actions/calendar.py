@@ -83,13 +83,13 @@ def run(p, ctx):
         ctx.undo.push(f"delete event #{hit['id']}", lambda: (store.save(FILE, store.load(FILE, []) + [hit]), "Restored.")[1])
         return f"Deleted {_fmt(hit)}"
     if a == "export_ics":
-        lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//jarvis//EN"]
+        lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//sirius//EN"]
         for e in events:
-            lines += ["BEGIN:VEVENT", f"UID:{e['id']}@jarvis", f"DTSTART:{_ics_dt(e['start'])}", f"DTEND:{_ics_dt(e['end'])}",
+            lines += ["BEGIN:VEVENT", f"UID:{e['id']}@sirius", f"DTSTART:{_ics_dt(e['start'])}", f"DTEND:{_ics_dt(e['end'])}",
                       f"SUMMARY:{e['title']}"] + ([f"LOCATION:{e['location']}"] if e.get("location") else []) + ["END:VEVENT"]
         lines.append("END:VCALENDAR")
         import os
-        path = os.path.expanduser(p.get("path") or "~/jarvis_calendar.ics")
+        path = os.path.expanduser(p.get("path") or "~/sirius_calendar.ics")
         open(path, "w", encoding="utf-8", newline="").write("\r\n".join(lines) + "\r\n")
         return f"Exported {len(events)} events to {path}"
     if a == "import_ics":

@@ -1,4 +1,4 @@
-"""Copy this file, rename it (no leading underscore), and JARVIS learns a new skill on next launch."""
+"""Copy this file, rename it (no leading underscore), and SIRIUS learns a new skill on next launch."""
 
 TOOL = {
     "name": "hello_plugin",

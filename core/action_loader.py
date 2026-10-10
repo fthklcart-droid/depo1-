@@ -18,7 +18,7 @@ AUDIT_MAX = 1_000_000
 
 def audit(tool: str, params: dict, ok: bool) -> None:
     """One line per tool call, so you can always see what the assistant did on your machine."""
-    if os.environ.get("JARVIS_NO_AUDIT"):
+    if os.environ.get("SIRIUS_NO_AUDIT"):
         return
     try:
         AUDIT.parent.mkdir(exist_ok=True)
@@ -56,7 +56,7 @@ class Registry:
 
 
 def _load_file(path: Path, reg: Registry) -> None:
-    mod_name = f"_jarvis_{path.parent.name}_{path.stem}"
+    mod_name = f"_sirius_{path.parent.name}_{path.stem}"
     try:
         spec = importlib.util.spec_from_file_location(mod_name, path)
         mod = importlib.util.module_from_spec(spec)

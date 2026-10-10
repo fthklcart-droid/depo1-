@@ -41,7 +41,7 @@ def run(p, ctx):
     url = p.get("url") or FEEDS.get((p.get("feed") or "world").lower())
     if not url or not url.startswith(("http://", "https://")):
         return f"Unknown feed. Use one of {', '.join(FEEDS)} or a url."
-    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (JarvisAssistant)"})
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (SiriusAssistant)"})
     with urllib.request.urlopen(req, timeout=10) as r:
         body = r.read(2_000_000).decode("utf-8", "replace")
     items = parse(body, int(p.get("limit", 8)))

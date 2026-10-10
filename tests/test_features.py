@@ -185,13 +185,13 @@ def test_reminder_repeat_is_stored(reg, ctx, tmp_path, monkeypatch):
 
 def test_audit_log_records_calls(reg, ctx, tmp_path, monkeypatch):
     import core.action_loader as al
-    monkeypatch.delenv("JARVIS_NO_AUDIT")
+    monkeypatch.delenv("SIRIUS_NO_AUDIT")
     monkeypatch.setattr(al, "AUDIT", tmp_path / "audit.jsonl")
     reg.call("calculate", {"expression": "1+1"}, ctx)
     reg.call("file_controller", {"action": "write", "path": str(tmp_path / "s"), "content": "SECRET"}, ctx)
     log = reg.call("audit_log", {}, ctx).text
     assert "calculate" in log and "file_controller" in log and "SECRET" not in log
-    monkeypatch.setenv("JARVIS_NO_AUDIT", "1")
+    monkeypatch.setenv("SIRIUS_NO_AUDIT", "1")
 
 
 def test_gemini_history_keeps_raw_content_for_thought_signatures():
