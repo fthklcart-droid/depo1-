@@ -328,10 +328,18 @@ def make_handler(ui: WebUI, token: str, port: int):
     return H
 
 
+class _Httpd(ThreadingHTTPServer):
+    def handle_error(self, request, client_address):
+        import sys
+        if isinstance(sys.exc_info()[1], (BrokenPipeError, ConnectionResetError)):
+            return                                   # a browser tab was closed mid-response: not an error worth a traceback
+        super().handle_error(request, client_address)
+
+
 class Server:
     def __init__(self, ui: WebUI, port: int = 0):
         self.ui, self.token = ui, secrets.token_urlsafe(24)
-        self.httpd = ThreadingHTTPServer(("127.0.0.1", port), lambda *a, **k: make_handler(ui, self.token, self.httpd.server_address[1])(*a, **k))
+        self.httpd = _Httpd(("127.0.0.1", port), lambda *a, **k: make_handler(ui, self.token, self.httpd.server_address[1])(*a, **k))
         self.httpd.daemon_threads = True
         self.port = self.httpd.server_address[1]
         self.url = f"http://127.0.0.1:{self.port}/?token={self.token}"

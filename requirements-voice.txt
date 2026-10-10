@@ -1,0 +1,3 @@
+# Sesli mod için (mikrofon ve hoparlör). Linux'ta önce: sudo apt install libportaudio2
+sounddevice>=0.4
+numpy>=1.26

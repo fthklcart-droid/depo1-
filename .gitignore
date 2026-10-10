@@ -12,3 +12,5 @@ SIRIUS_KOD_PHANTOM.md
 # paketler (kişisel olanlar API anahtarı içerir, asla commit edilmez)
 sirius-*.zip
 *.zip
+memory/*.log
+.venv/
