@@ -1,0 +1,16 @@
+{
+  "gemini_api_key": "BURAYA_GEMINI_ANAHTARI",
+  "assistant_name": "JARVIS",
+  "user_name": "",
+  "voice": "Charon",
+  "email": {
+    "user": "ben@ornek.com",
+    "password": "uygulama-parolasi",
+    "imap_host": "imap.ornek.com",
+    "smtp_host": "smtp.ornek.com"
+  },
+  "home_assistant": {
+    "url": "http://homeassistant.local:8123",
+    "token": "uzun-omurlu-token"
+  }
+}

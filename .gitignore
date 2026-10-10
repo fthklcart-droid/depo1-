@@ -6,3 +6,4 @@ memory/*.json
 .venv/
 memory/*.jsonl
 memory/*.old
+jarvis-asistan.zip
