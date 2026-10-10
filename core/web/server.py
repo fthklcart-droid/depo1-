@@ -82,8 +82,10 @@ class WebUI:
         threading.Thread(target=self._run_say, args=(text,), daemon=True).start()
 
     def _run_say(self, text: str) -> None:
-        if not self.ask:
-            self.write_log("SYS: Asistan modeli bağlı değil (API anahtarı yok).")
+        from core import voice_router
+        fast = voice_router.route(text) if self.registry else None
+        if not self.ask and not fast:
+            self.write_log("SYS: Bu komutu anlamak için model gerekir (API anahtarı yok).")
             return
         if not self._busy.acquire(blocking=False):
             self.write_log("SYS: Önceki işlem sürüyor, bitince tekrar dene.")
@@ -92,7 +94,11 @@ class WebUI:
             self.write_log(f"Sen: {text}")
             self.set_state("THINKING")
             try:
-                answer = self.ask(text)
+                if fast:
+                    self.write_log(f"→ {fast[0]}")
+                    answer = self.registry.call(fast[0], fast[1], self.ctx).text
+                else:
+                    answer = self.ask(text)
             except Exception as e:  # noqa: BLE001 - a model error must not kill the server
                 self.write_log(f"ERR: {type(e).__name__}: {e}")
                 return

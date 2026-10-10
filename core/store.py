@@ -19,3 +19,12 @@ def save(name: str, data) -> None:
     tmp = DIR / (name + ".tmp")
     tmp.write_text(json.dumps(data, ensure_ascii=False, indent=1), "utf-8")
     tmp.replace(DIR / name)  # atomic: a crash mid-write cannot corrupt the store
+
+
+def save_output(name: str, text: str):
+    """Generated documents live in memory/outputs/. Returns the path."""
+    d = DIR / "outputs"
+    d.mkdir(parents=True, exist_ok=True)
+    p = d / name
+    p.write_text(text, "utf-8")
+    return p

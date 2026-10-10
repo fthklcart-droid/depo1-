@@ -58,6 +58,11 @@ def run_text(ui) -> int:
         elif line == "/undo":
             print(ctx.undo.undo())
         else:
+            from core import voice_router
+            quick = voice_router.run(line, reg, ctx)
+            if quick is not None:
+                print(quick)
+                continue
             try:
                 print(agent.ask(line))
             except Exception as e:  # noqa: BLE001 - a model error must not end the REPL

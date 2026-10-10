@@ -64,7 +64,7 @@ def test_say_runs_the_agent_and_streams_states(env):
                                     {"text": "Sonuç 42", "calls": []}]), ui.registry, ui.ctx).ask
     q = queue.Queue()
     ui._clients.append(q)
-    assert json.loads(req(s, "POST", "/api/say", {"text": "6 çarpı 7?"})[1])["ok"]
+    assert json.loads(req(s, "POST", "/api/say", {"text": "bana çarpımın sonucunu söyler misin"})[1])["ok"]
     events = []
     while True:
         e = q.get(timeout=5)
@@ -74,7 +74,7 @@ def test_say_runs_the_agent_and_streams_states(env):
     states = [e["state"] for e in events if e["type"] == "state"]
     assert states == ["THINKING", "SPEAKING", "LISTENING"]
     assert {"type": "say", "text": "Sonuç 42"} in events
-    assert any(e["type"] == "log" and e["line"] == "Sen: 6 çarpı 7?" for e in events)
+    assert any(e["type"] == "log" and e["line"] == "Sen: bana çarpımın sonucunu söyler misin" for e in events)
 
 
 def test_confirm_is_decided_by_the_browser_only(env):
