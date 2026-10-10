@@ -1,0 +1,6 @@
+google-genai>=1.0
+# optional: richer system telemetry
+psutil>=5.9
+pillow>=10.0
+sounddevice>=0.4
+numpy>=1.26

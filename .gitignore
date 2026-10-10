@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+config/api_keys.json
+memory/*.json
+.jarvis_trash/
+.venv/
