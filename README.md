@@ -4,6 +4,8 @@ Gemini ile çalışan, bilgisayarını kontrol edebilen, ses ve metin modlu asis
 2300 satırlık tek parça `main.py` dosyası, test edilebilir küçük modüllere bölündü; yetenek sayısı
 12'den **20 araca** çıktı.
 
+![SIRIUS web arayüzü: gerçek Gemini ile araç çağrısı, etkinlik günlüğü ve 3B avatar](docs/arayuz.png)
+
 ```bash
 pip install -r requirements.txt
 export GEMINI_API_KEY=...        # ya da config/api_keys.json -> {"gemini_api_key": "..."}
