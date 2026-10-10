@@ -17,3 +17,8 @@ class Context:
     notify: Callable[[str], None] = print
     log: Callable[[str], None] = lambda msg: None
     shutdown: Callable[[], None] = lambda: None
+    registry: object = None   # set by Registry.call, so one skill can compose others
+
+    def call(self, tool: str, **params) -> str:
+        """Run another skill and get its text. Lets a briefing reuse calendar, weather and notes."""
+        return self.registry.call(tool, params, self).text if self.registry else "(no registry)"

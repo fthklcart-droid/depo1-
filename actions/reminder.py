@@ -9,13 +9,16 @@ FILE = Path(__file__).resolve().parent.parent / "memory" / "reminders.json"
 _lock = threading.Lock()
 _thread = None
 
+EVERY = {"hourly": 3600, "daily": 86400, "weekly": 7 * 86400}
+
 TOOL = {
     "name": "reminder",
     "description": "Set, list or cancel reminders. For 'set' give message plus EITHER in_minutes OR at (ISO local time like 2026-10-11T09:30).",
     "parameters": {"type": "object", "properties": {
         "action": {"type": "string", "enum": ["set", "list", "cancel"]},
         "message": {"type": "string"}, "in_minutes": {"type": "number"},
-        "at": {"type": "string"}, "id": {"type": "integer"}}, "required": ["action"]},
+        "at": {"type": "string"}, "id": {"type": "integer"},
+        "repeat": {"type": "string", "enum": ["hourly", "daily", "weekly"], "description": "Recur on this schedule"}}, "required": ["action"]},
 }
 
 
@@ -38,7 +41,13 @@ def _loop(ctx):
             items = _load()
             due = [i for i in items if i["due"] <= time.time()]
             if due:
-                _save([i for i in items if i not in due])
+                keep = [i for i in items if i not in due]
+                for i in due:
+                    step = EVERY.get(i.get("repeat"))
+                    if step:   # recurring: roll forward past now, never fire a backlog
+                        n = int((time.time() - i["due"]) // step) + 1
+                        keep.append({**i, "due": i["due"] + n * step})
+                _save(keep)
         for i in due:
             ctx.notify(f"⏰ Hatırlatma: {i['message']}")
 
@@ -70,10 +79,10 @@ def run(p, ctx):
             if due <= time.time():
                 return "That time is already in the past."
             rid = max([i["id"] for i in items], default=0) + 1
-            _save(items + [{"id": rid, "message": p["message"], "due": due}])
-            return f"Reminder #{rid} set for {dt.datetime.fromtimestamp(due):%Y-%m-%d %H:%M:%S}."
+            _save(items + [{"id": rid, "message": p["message"], "due": due, "repeat": p.get("repeat")}])
+            return f"Reminder #{rid} set for {dt.datetime.fromtimestamp(due):%Y-%m-%d %H:%M:%S}" + (f", repeating {p['repeat']}." if p.get("repeat") else ".")
         if a == "list":
-            return "\n".join(f"#{i['id']} {dt.datetime.fromtimestamp(i['due']):%m-%d %H:%M} {i['message']}"
+            return "\n".join(f"#{i['id']} {dt.datetime.fromtimestamp(i['due']):%m-%d %H:%M} {i['message']}{' (' + i['repeat'] + ')' if i.get('repeat') else ''}"
                              for i in sorted(items, key=lambda x: x["due"])) or "No reminders."
         left = [i for i in items if i["id"] != p.get("id")]
         _save(left)

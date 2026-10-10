@@ -4,3 +4,5 @@ config/api_keys.json
 memory/*.json
 .jarvis_trash/
 .venv/
+memory/*.jsonl
+memory/*.old

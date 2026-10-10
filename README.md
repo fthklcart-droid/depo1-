@@ -9,7 +9,7 @@ pip install -r requirements.txt
 export GEMINI_API_KEY=...        # ya da config/api_keys.json -> {"gemini_api_key": "..."}
 python main.py                   # terminalde metin asistanı
 python main.py --live            # sesli mod (Gemini Live)
-python -m pytest tests           # 20 test, ağ ve donanım gerekmez
+python -m pytest tests           # 35 test, ağ ve donanım gerekmez
 ```
 
 ## Yetenekler
@@ -25,6 +25,47 @@ python -m pytest tests           # 20 test, ağ ve donanım gerekmez
 | Kod | `run_python`, `run_shell` — **her zaman insana sorar**, model kendi kendine onaylayamaz |
 | Bellek | `remember`, `recall_memory`, `forget`; sınırsız depolama, prompt'a sığan çekirdek + anahtar dizini |
 | Kontrol | `undo`, `shutdown_assistant` |
+
+### Yeni eklenenler
+
+| Alan | Araçlar |
+|---|---|
+| Belgelerinde ara | `doc_search` — klasörleri indeksler (txt, md, kod, csv, docx, isteğe bağlı pdf), saf Python BM25 ile arar. Artımlı: yalnızca değişen dosyalar yeniden okunur. Hiçbir şey dışarı gönderilmez |
+| Takvim | `calendar` — ekle, bugün, yaklaşan, sil, **çakışma uyarısı**, `.ics` içe/dışa aktarma |
+| Sabah brifingi | `daily_briefing` — hava, takvim, yapılacaklar, hatırlatıcılar ve manşetleri tek çağrıda toplar; biri çökerse diğerleri gelir |
+| E-posta | `email` — okunmamışları listele/oku (posta "okundu" olarak işaretlenmez); **göndermek her zaman insana sorar** |
+| Akıllı ev | `home_assistant` — durumlar ve servis çağrıları; kilit, alarm, kapı, sirene onay gerekir |
+| Para | `expenses` (harcama kaydı ve aylık özet), `currency_convert` (ECB kuru) |
+| Haberler | `rss_feed` — world / turkce / tech / science / business ya da kendi RSS adresin |
+| Metin | `summarize`, `translate` — metin, dosya ya da web sayfası |
+| Dosya bakımı | `organize_folder` (önce kuru çalıştırma, sonra tek komutla **geri alınır**), `find_duplicates`, `largest_files`, `make_zip` |
+| Yardımcılar | `utilities` — parola, uuid, hash, base64, JSON, regex, zar, zaman damgası |
+| Hatırlatıcı | artık `hourly / daily / weekly` tekrarlı |
+| Şeffaflık | `audit_log` — asistanın bu bilgisayarda ne yaptığını gösterir (`memory/audit.jsonl`; içerik ve parolalar kaydedilmez) |
+
+Ayarlar `config/api_keys.json` içinde:
+
+```json
+{"gemini_api_key": "...",
+ "email": {"user": "ben@ornek.com", "password": "uygulama-parolası", "imap_host": "imap.ornek.com", "smtp_host": "smtp.ornek.com"},
+ "home_assistant": {"url": "http://homeassistant.local:8123", "token": "uzun-ömürlü-token"}}
+```
+
+### Araştırmadan çıkan kararlar
+
+* 2026 kişisel asistan karşılaştırmaları, değeri **gösteriden çok günlük kullanımda** görüyor: takvim, e-posta, görev ve bellek bir arada
+  ([Lindy](https://www.lindy.ai/blog/ai-personal-assistant), [Vellum](https://vellum.ai/blog/best-personal-ai-assistants),
+  [Nexos](https://nexos.ai/blog/ai-personal-assistant/)). Bu yüzden `daily_briefing` ayrı özelliklerin üstüne kurulu bir araç.
+* Aynı kaynaklar asıl ödünleşimi **izinler** olarak gösteriyor. Karşılığı: göndermeden/kilit açmadan önce insan onayı,
+  `audit_log`, ve yerel-öncelikli belge araması.
+* Açık kaynak JARVIS benzerleri ([isair/jarvis](https://docsearch.algolia.com/mcp/docs/repo/isair/jarvis)) Home Assistant ve yerel bilgi
+  tabanı sunuyor; ikisini de ekledim. (MCP istemcisi eklenmedi: ek bağımlılık ve ayrı güvenlik incelemesi gerektirir.)
+* Gemini 3 çok turlu araç çağrılarında **thought signature**'ların geri gönderilmesini istiyor
+  ([belgeler](https://ai.google.dev/gemini-api/docs/tools)). Önceki sürümüm geçmişi yeniden kurarken bunları düşürüyordu; şimdi modelin
+  orijinal `Content` nesnesi aynen saklanıyor (`test_gemini_history_keeps_raw_content_for_thought_signatures`). Bu davranışı doğrudan
+  resmi belgeden değil, üçüncü taraf özetlerden öğrendim; canlı API ile doğrulanmadı.
+* **Prompt injection savunması:** web sayfası ve e-posta içeriği `[UNTRUSTED ...]` etiketiyle döner, sistem prompt'u bu içeriğin
+  talimat olmadığını söyler, `summarize/translate` metni veri olarak çerçeveler.
 
 **Yeni yetenek eklemek tek dosyadır:** `plugins/_template.py` dosyasını kopyalayıp adının başındaki
 `_` işaretini kaldırın. Bozuk bir eklenti yalnızca kendi hatasını raporlar, oturumu düşürmez.
@@ -75,4 +116,6 @@ core/
   yalnızca yapılandırma kurulumu ve saf mantık test edildi, **uçtan uca canlı oturum denenmedi**.
 * Avatar çizimi, uyandırma kelimesi motoru, push-to-talk kısayolu ve telefon panosu bu depoda yok;
   `UI` Protocol'ü, `LiveSession.wake_detector` ve `MicGate.ptt()` bunlar için takılma noktalarıdır.
+* E-posta, Home Assistant ve `currency_convert`/`rss_feed` gerçek sunucularla denenmedi; testler onay kapılarını, ayrıştırmayı ve hata yollarını doğrular.
+* Prompt injection savunması azaltır, ortadan kaldırmaz; onay kapıları asıl güvencedir.
 * `web_search` DuckDuckGo HTML sayfasını ayrıştırır; sayfa biçimi değişirse bozulabilir.

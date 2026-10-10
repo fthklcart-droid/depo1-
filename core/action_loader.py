@@ -2,6 +2,9 @@
 from __future__ import annotations
 
 import importlib.util
+import json
+import os
+import time
 import sys
 import traceback
 from pathlib import Path
@@ -9,6 +12,23 @@ from pathlib import Path
 from core.result import ToolResult, as_result
 
 ROOT = Path(__file__).resolve().parent.parent
+AUDIT = ROOT / "memory" / "audit.jsonl"
+AUDIT_MAX = 1_000_000
+
+
+def audit(tool: str, params: dict, ok: bool) -> None:
+    """One line per tool call, so you can always see what the assistant did on your machine."""
+    if os.environ.get("JARVIS_NO_AUDIT"):
+        return
+    try:
+        AUDIT.parent.mkdir(exist_ok=True)
+        if AUDIT.exists() and AUDIT.stat().st_size > AUDIT_MAX:
+            AUDIT.replace(AUDIT.with_suffix(".old"))
+        short = {k: (str(v)[:120]) for k, v in (params or {}).items() if k not in ("content", "password", "body")}
+        with open(AUDIT, "a", encoding="utf-8") as f:
+            f.write(json.dumps({"t": int(time.time()), "tool": tool, "args": short, "ok": ok}, ensure_ascii=False) + "\n")
+    except OSError:
+        pass  # auditing must never break a tool
 
 
 class Registry:
@@ -24,10 +44,14 @@ class Registry:
         h = self.handlers.get(name)
         if h is None:
             return ToolResult(f"Unknown tool '{name}'. Available: {', '.join(sorted(self.tools))}")
+        ctx.registry = self
         try:
-            return as_result(h(params or {}, ctx))
+            out = as_result(h(params or {}, ctx))
+            audit(name, params, True)
+            return out
         except Exception as e:  # a crashing skill must never take the session down
             ctx.log(traceback.format_exc())
+            audit(name, params, False)
             return ToolResult(f"Tool '{name}' failed: {type(e).__name__}: {e}")
 
 

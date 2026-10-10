@@ -41,6 +41,8 @@ class GeminiBackend:
         for h in history:
             if h["role"] == "user":
                 out.append(t.Content(role="user", parts=[t.Part.from_text(text=h["text"])]))
+            elif h["role"] == "model" and h.get("raw") is not None:
+                out.append(h["raw"])  # original Content: carries thought signatures Gemini 3 requires back
             elif h["role"] == "model":
                 parts = [t.Part.from_text(text=h["text"])] if h.get("text") else []
                 parts += [t.Part.from_function_call(name=c["name"], args=c["args"]) for c in h["calls"]]
@@ -65,13 +67,13 @@ class GeminiBackend:
         resp = self.ladder.call(lambda m: self.client.models.generate_content(
             model=m, contents=contents, config=cfg))
         text, calls = "", []
-        for p in (resp.candidates[0].content.parts if resp.candidates else []) or []:
+        raw = resp.candidates[0].content if resp.candidates else None
+        for p in (raw.parts if raw is not None else []) or []:
             if getattr(p, "text", None):
                 text += p.text
             if getattr(p, "function_call", None):
                 calls.append({"name": p.function_call.name, "args": dict(p.function_call.args or {})})
-        return {"text": text, "calls": calls}
-
+        return {"text": text, "calls": calls, "raw": raw}
 
     def text(self, prompt: str) -> str:
         """One-shot completion through the ladder (summaries and similar)."""

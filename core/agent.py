@@ -30,7 +30,7 @@ class Agent:
             system = build_system(self.ctx, self.reg, self.name)  # memory may have changed
             reply = self.backend.generate(system, self.history, self.reg.declarations())
             calls = reply.get("calls") or []
-            self.history.append({"role": "model", "text": reply.get("text", ""), "calls": calls})
+            self.history.append({"role": "model", "text": reply.get("text", ""), "calls": calls, "raw": reply.get("raw")})
             if not calls:
                 return reply.get("text", "").strip() or "(no answer)"
             results = []
