@@ -50,6 +50,8 @@ def route(text: str):
         return "undo", {}
     if re.fullmatch(r"sistem durumu|bilgisayar durumu|pil durumu|ram durumu|bilgisayarım nasıl", t):
         return "system_info", {}
+    if re.fullmatch(r"(?:el kontrolü|el hareketleri|el hareketleriyle kontrol|holo|holo paneli)(?:n?[iıuü])? ?(?:aç|başlat)|(?:aç|başlat) (?:el kontrolü|el hareketleri|holo)(?: paneli)?", t):
+        return "holo_ac", {}
     m = re.fullmatch(r"(?:aç|başlat|çalıştır) (.+)|(.+?)(?:'?[yı]?[iıuü]|'?[yı]?)? (?:aç|başlat)", t)
     if m:
         target = (m.group(1) or m.group(2) or "").strip()

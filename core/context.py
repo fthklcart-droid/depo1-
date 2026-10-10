@@ -17,6 +17,7 @@ class Context:
     notify: Callable[[str], None] = print
     log: Callable[[str], None] = lambda msg: None
     shutdown: Callable[[], None] = lambda: None
+    holo_url: str = ""      # set by the web UI: where the hand-gesture deck lives
     registry: object = None   # set by Registry.call, so one skill can compose others
 
     def call(self, tool: str, **params) -> str:

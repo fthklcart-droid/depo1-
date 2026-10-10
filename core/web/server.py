@@ -5,6 +5,7 @@ ours (blocks DNS rebinding). A random web page therefore cannot send commands or
 """
 from __future__ import annotations
 
+import http.cookies
 import json
 import mimetypes
 import queue
@@ -15,7 +16,19 @@ import urllib.parse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-WEB = Path(__file__).resolve().parent.parent.parent / "web"
+ROOT = Path(__file__).resolve().parent.parent.parent
+WEB = ROOT / "web"
+HOLO = ROOT / "holo"
+# The hand deck holds the camera, so it may talk to nobody but us: no CDN, no beacons, no frames out.
+HOLO_CSP = ("default-src 'none'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; "
+            "img-src 'self' data: blob:; media-src 'self' blob: mediastream:; connect-src 'self'; worker-src 'self' blob:; "
+            "font-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'")
+HOLO_MIME = {".js": "text/javascript", ".mjs": "text/javascript", ".wasm": "application/wasm",
+             ".task": "application/octet-stream", ".glb": "model/gltf-binary"}
+
+
+def _eq(a: str, b: str) -> bool:
+    return secrets.compare_digest(a.encode(), b.encode())
 CONFIRM_TIMEOUT = 120
 
 
@@ -42,6 +55,10 @@ class WebUI:
                 self._history = (self._history + [ev])[-60:]
             for q in list(self._clients):
                 q.put(ev)
+
+    def gesture(self, event: str, card: str) -> None:
+        self.emit("gesture", event=event[:30], card=card[:80])
+        self.write_log(f"✋ {event[:30]}" + (f": {card[:60]}" if card else ""))
 
     def set_state(self, state):
         self.state = state
@@ -136,17 +153,19 @@ def make_handler(ui: WebUI, token: str, port: int):
 
         def _authed(self, qs) -> bool:
             sent = self.headers.get("X-Token") or (qs.get("token") or [""])[0]
-            if not secrets.compare_digest(sent, token):
+            if not _eq(sent, token):
                 self._send(401, b"token required", "text/plain")
                 return False
             return True
 
-        def _send(self, code, body: bytes, ctype="application/json"):
+        def _send(self, code, body: bytes, ctype="application/json", extra=None):
             self.send_response(code)
             self.send_header("Content-Type", ctype + ("; charset=utf-8" if ctype.startswith("text/") or "json" in ctype else ""))
             self.send_header("Content-Length", str(len(body)))
             self.send_header("Cache-Control", "no-store")
             self.send_header("X-Content-Type-Options", "nosniff")
+            for k, v in (extra or {}).items():
+                self.send_header(k, v)
             self.end_headers()
             self.wfile.write(body)
 
@@ -158,6 +177,10 @@ def make_handler(ui: WebUI, token: str, port: int):
                 return
             u = urllib.parse.urlparse(self.path)
             qs = urllib.parse.parse_qs(u.query)
+            if u.path == "/favicon.ico":                         # browsers ask on their own, without our token
+                return self._send(204, b"", "image/x-icon")
+            if u.path == "/holo" or u.path.startswith("/holo/"):
+                return self._holo_get(u, qs)
             if u.path in ("/", "/index.html", "/s3d.js"):
                 if u.path != "/s3d.js" and not self._authed(qs):
                     return
@@ -178,8 +201,71 @@ def make_handler(ui: WebUI, token: str, port: int):
                 return self._json(ui.call("connections", action="list"))
             self._send(404, b"not found", "text/plain")
 
+        def _holo_authed(self, qs) -> bool:
+            c = http.cookies.SimpleCookie(self.headers.get("Cookie", ""))
+            sent = c["sirius_holo"].value if "sirius_holo" in c else (self.headers.get("X-Token") or (qs.get("token") or [""])[0])
+            if not _eq(sent, token):
+                self._send(401, b"token required", "text/plain")
+                return False
+            return True
+
+        def _holo_get(self, u, qs):
+            if "token" in qs:                                    # first visit: trade the token for a cookie, drop it from the URL
+                if not _eq(qs["token"][0], token):
+                    return self._send(401, b"token required", "text/plain")
+                self.send_response(302)
+                self.send_header("Set-Cookie", f"sirius_holo={token}; HttpOnly; SameSite=Strict; Path=/holo")
+                self.send_header("Location", "/holo/")
+                self.send_header("Content-Length", "0")
+                self.end_headers()
+                return
+            if not self._holo_authed(qs):
+                return
+            rel = urllib.parse.unquote(u.path[len("/holo"):]).lstrip("/")
+            if rel in ("", "index.html", "holo.html"):
+                return self._send(200, (HOLO / "holo.html").read_bytes(), "text/html",
+                                  {"Content-Security-Policy": HOLO_CSP, "Permissions-Policy": "camera=(self), microphone=()", "Referrer-Policy": "no-referrer"})
+            if rel == "api/tree":
+                from core import holo
+                return self._json(holo.tree())
+            if rel == "api/props":
+                from core import holo
+                return self._json(holo.props())
+            top = rel.split("/")[0]
+            if top in ("vendor", "props"):
+                full = (HOLO / rel).resolve()
+                # must stay inside vendor/ or props/ themselves: "vendor/../holo.html" would otherwise serve the page without its CSP
+                if (HOLO / top).resolve() in full.parents and full.is_file() and full.suffix in HOLO_MIME:
+                    return self._send(200, full.read_bytes(), HOLO_MIME[full.suffix])
+            self._send(404, b"not found", "text/plain")
+
+        def _holo_post(self, rel: str, data: dict):
+            if rel == "api/state":
+                ui.gesture(str(data.get("event", ""))[:30], str(data.get("card", ""))[:80])
+                return self._json({"ok": True})
+            if rel == "api/diag":
+                blob = json.dumps(data, ensure_ascii=False)
+                if len(blob) <= 20_000:
+                    from core import store
+                    store.save("holo-diag.json", data)
+                return self._json({"ok": True})
+            self._send(404, b"not found", "text/plain")
+
         def do_POST(self):
-            if not self._ok() or not self._authed({}):
+            if not self._ok():
+                return
+            if urllib.parse.urlparse(self.path).path.startswith("/holo/api/"):
+                if not self._holo_authed({}):
+                    return
+                n = int(self.headers.get("Content-Length") or 0)
+                if n > 100_000:
+                    return self._send(413, b"too large", "text/plain")
+                try:
+                    body = json.loads(self.rfile.read(n) or b"{}")
+                except ValueError:
+                    return self._send(400, b"bad json", "text/plain")
+                return self._holo_post(urllib.parse.urlparse(self.path).path[len("/holo/"):], body if isinstance(body, dict) else {})
+            if not self._authed({}):
                 return
             n = int(self.headers.get("Content-Length") or 0)
             if n > 100_000:

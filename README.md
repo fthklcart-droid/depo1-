@@ -92,6 +92,17 @@ Windows'ta `SIRIUS_KISAYOL_OLUSTUR.bat`, macOS/Linux'ta `sirius_kisayol_olustur.
 açmaz; tarayıcıda arayüz açılır, kapatmak için arayüzdeki **KAPAT** düğmesini kullan. Kayıtlar `memory/sirius.log` dosyasına yazılır.
 Simge, SIRIUS yıldızından `assets/` altına otomatik çizilir (Pillow gerekir).
 
+### HOLO el kontrolü (`holo/`)
+
+[zubair-trabzada/holo-gestures](https://github.com/zubair-trabzada/holo-gestures) (MIT) projesi SIRIUS'a eklendi: **kameranla havada tut, fırlat, büyüt, ✌ ile sıfırla.**
+Web arayüzündeki **EL KONTROLÜ** düğmesi, `holo_ac` aracı ya da "el kontrolünü aç" komutu paneli açar. Notların (ve Bağlantılar'a eklediğin
+klasörler) kürelere ve kartlara dönüşür; yapılan her hareket etkinlik günlüğüne düşer. Kaynak, lisans ve **yaptığım değişiklikler** `holo/NOTICE.md` içinde.
+
+* **Kamera görüntüsü bilgisayardan çıkmaz.** Özgün sayfa, yerel dosya yüklenemezse CDN'den kod çekmeye düşüyordu; bu yedekleri **kaldırdım** ve sayfaya
+  `connect-src 'self'` içerik politikası (CSP) verdim. Tarayıcıda doğruladım: sayfa hiçbir dış sunucuya istek atmıyor.
+* Yazarın kendi test bataryası bizim entegrasyonda **26/26** geçiyor (`/holo/?probe=1`); kamerasız demo için `/holo/?sim=1`.
+* 3B modeller (`props/`, 19 MB) pakete dahil değil; `holo/props/` içine herhangi bir `.glb` koyabilirsin.
+
 ### Web arayüzü (`python main.py --web`)
 
 Tasarladığım HUD, gerçek asistana bağlı: 5 tane 3B avatar (Holo Kafa, Nöron, Beyin, Kuantum, Altın; asistanın durumuna göre

@@ -67,6 +67,7 @@ pre.c{margin:0;font:12px/1.5 'IBM Plex Mono',monospace;white-space:pre-wrap;word
     <div class="chip"><span class="dot" id="stDot"></span><span id="stLabel">BAĞLANIYOR</span></div>
     <div class="sp"></div>
     <button class="btn" id="undoBtn" title="Son işlemi geri al">GERİ AL</button>
+    <button class="btn" id="holoBtn" title="Kamerayla el hareketleriyle notlarını kontrol et">EL KONTROLÜ</button>
     <button class="btn on" id="connBtn">BAĞLANTILAR</button>
     <button class="btn" id="quitBtn" title="SIRIUS'u tamamen kapat">KAPAT</button>
   </div>
@@ -166,6 +167,7 @@ $('cYes').onclick = () => cid && post('/api/confirm', {id: cid, ok: true});
 $('cNo').onclick = () => cid && post('/api/confirm', {id: cid, ok: false});
 
 $('form').onsubmit = ev => { ev.preventDefault(); const t = $('inp').value.trim(); if (t) { post('/api/say', {text: t}); $('inp').value = ''; } };
+$('holoBtn').onclick = () => window.open('/holo/?token=' + encodeURIComponent(TOKEN), '_blank');
 $('quitBtn').onclick = () => { if (confirm('SIRIUS kapatılsın mı?')) post('/api/quit', {}).then(() => { document.body.textContent = 'SIRIUS kapatıldı. Bu sekmeyi kapatabilirsin.'; }); };
 $('undoBtn').onclick = () => post('/api/undo', {}).then(r => addLog('SYS: ' + r.text));
 

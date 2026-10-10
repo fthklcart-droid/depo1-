@@ -103,6 +103,7 @@ def run_web(args) -> int:
     ctx.log = lambda m: ui.write_log(m[:160]) if m.startswith(("→", "←")) else None
     ui.registry, ui.ctx, ui.cfg = reg, ctx, cfg
     srv = Server(ui, args.port).start()
+    ctx.holo_url = f"http://127.0.0.1:{srv.port}/holo/?token={srv.token}"
     print(f"SIRIUS arayüzü: {srv.url}\n(bu adres yalnızca bu bilgisayardan ve bu oturum için çalışır)")
     if not args.no_browser:
         webbrowser.open(srv.url)
