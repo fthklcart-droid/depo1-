@@ -29,6 +29,7 @@ class WebUI:
         self._history: list[dict] = []
         self._pending: dict[str, tuple[threading.Event, list]] = {}
         self.state = "LISTENING"
+        self.quit = None                     # callable(), set by main: stops the whole process
         self.ask = None                      # callable(text) -> str, set by serve()/main
         self.registry = self.ctx = self.cfg = None
         self._busy = threading.Lock()
@@ -202,6 +203,10 @@ def make_handler(ui: WebUI, token: str, port: int):
                     return self._json({"ok": False, "text": "bad action"}, 400)
                 params = {k: v for k, v in data.items() if k in ("url", "path", "name", "alias", "command", "watch") and isinstance(v, (str, bool))}
                 return self._json({"ok": True, "text": ui.call("connections", action=action, **params)})
+            if path == "/api/quit":
+                if ui.quit:
+                    threading.Timer(0.4, ui.quit).start()           # let this response go out first
+                return self._json({"ok": bool(ui.quit)})
             if path == "/api/undo":
                 return self._json({"ok": True, "text": ui.ctx.undo.undo()})
             self._send(404, b"not found", "text/plain")

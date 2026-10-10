@@ -17,6 +17,9 @@ from core.config import Config  # noqa: E402
 from core.context import Context  # noqa: E402
 from core.ui import ConsoleUI  # noqa: E402
 from memory.memory_manager import Memory  # noqa: E402
+from pathlib import Path  # noqa: E402
+
+ROOT = Path(__file__).resolve().parent
 
 
 def build_runtime(ui):
@@ -90,7 +93,12 @@ def run_web(args) -> int:
 
     from core.web.server import Server, WebUI
 
+    import os
+    if sys.stdout is None or sys.stderr is None:          # started without a console (desktop shortcut on Windows)
+        (ROOT / "memory").mkdir(exist_ok=True)
+        sys.stdout = sys.stderr = open(ROOT / "memory" / "sirius.log", "a", encoding="utf-8", buffering=1)
     ui = WebUI()
+    ui.quit = lambda: os._exit(0)
     cfg, ctx, reg = build_runtime(ui)
     ctx.log = lambda m: ui.write_log(m[:160]) if m.startswith(("→", "←")) else None
     ui.registry, ui.ctx, ui.cfg = reg, ctx, cfg

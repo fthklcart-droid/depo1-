@@ -10,7 +10,7 @@ export GEMINI_API_KEY=...        # ya da config/api_keys.json -> {"gemini_api_ke
 python main.py                   # terminalde metin asistanı
 python main.py --live            # sesli mod (Gemini Live)
 python main.py --web             # arayüz tarayıcıda (3B avatarlar, Bağlantılar); --live ile birlikte sesli
-python -m pytest tests           # 85 test, ağ ve donanım gerekmez
+python -m pytest tests           # 93 test, ağ ve donanım gerekmez
 ```
 
 ## Yetenekler
@@ -81,6 +81,16 @@ Henüz yalnızca yazılı komutlara bağlı; sesli modda (`--live`) komutları m
 Bu bir **üslup tarifidir**; yeteneği değiştirmez, modelin gücü seçtiğin Gemini modeline bağlıdır.
 
 **Yeni eklenti yazmak:** `plugins/_template.py` dosyasını kopyala, adının başındaki `_` işaretini kaldır.
+
+### Masaüstü kısayolu
+
+```bash
+python kisayol.py --run      # kısayolu oluşturur ve SIRIUS'u hemen açar
+python kisayol.py --remove   # kısayolu siler
+```
+Windows'ta `SIRIUS_KISAYOL_OLUSTUR.bat`, macOS/Linux'ta `sirius_kisayol_olustur.sh` dosyasına çift tıklamak da yeter. Kısayol konsol penceresi
+açmaz; tarayıcıda arayüz açılır, kapatmak için arayüzdeki **KAPAT** düğmesini kullan. Kayıtlar `memory/sirius.log` dosyasına yazılır.
+Simge, SIRIUS yıldızından `assets/` altına otomatik çizilir (Pillow gerekir).
 
 ### Web arayüzü (`python main.py --web`)
 
