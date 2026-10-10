@@ -86,6 +86,19 @@ Bu bir **üslup tarifidir**; yeteneği değiştirmez, modelin gücü seçtiğin 
 
 **Yeni eklenti yazmak:** `plugins/_template.py` dosyasını kopyala, adının başındaki `_` işaretini kaldır.
 
+### Sesli komut (Gemini Live)
+
+```bash
+pip install sounddevice numpy        # mikrofon ve hoparlör için
+python main.py --live                # ya da arayüzle birlikte: python main.py --web --live
+```
+Konuş; asistan sesle cevap verir, **araçları kendisi çağırır** ("saat kaç?" → `datetime_info`, "yarın ne var?" → `calendar`) ve cevabı yazıya döker.
+Kulaklık kullan: hoparlörden çıkan ses mikrofona geri girerse asistan kendi sesini duyabilir (yankı koruması basit bir eşik yöntemidir).
+
+**Gerçek bir Gemini anahtarıyla doğrulananlar:** Live bağlantısı (1,7 sn), araç çağrısı ve sonucunun geri gönderilmesi, ses cevabı (≈100 KB) ve yazıya dökme.
+**Doğrulanamayanlar:** gerçek mikrofon ve hoparlör, uyandırma kelimesi motoru ve bas-konuş kısayolu (ikisi bu depoda yok), Windows/macOS ses sürücüleri.
+Tek seferlik denemede bulunan bir hata düzeltildi: Ctrl+C, iptali koparak bağlantı sanıp yeniden bağlanıyordu (regresyon testi: `tests/test_live_cancel.py`).
+
 ### Masaüstü kısayolu
 
 ```bash

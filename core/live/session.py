@@ -271,6 +271,9 @@ class LiveSession:
             except (KeyboardInterrupt, SystemExit):
                 raise
             except BaseException as e:  # noqa: BLE001 - TaskGroup raises BaseExceptionGroup
+                me = asyncio.current_task()
+                if isinstance(e, asyncio.CancelledError) or (me is not None and me.cancelling()):
+                    raise                    # Ctrl+C / shutdown: never mistake our own cancellation for a dropped connection
                 if not await self._recover(e, model, resumed):
                     return
             finally:
