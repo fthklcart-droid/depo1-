@@ -40,7 +40,7 @@ python kurulum.py --dry-run                                # hiçbir şey deği�
 
 **Başarı ölçütü:** çıktıda `✓ sanal ortam`, `✓ çekirdek paketler` ve (anahtar verdiysen) `✓ anahtar doğrulandı` satırları. Ayrıca:
 ```bash
-.venv/bin/python -m pytest -q tests      # 142 test geçmeli (sesli paketler yoksa 1 test atlanır)
+.venv/bin/python -m pytest -q tests      # 145 test geçmeli (sesli paketler yoksa 1 test atlanır)
 .venv/bin/python main.py                 # terminalde "saat kaç" yaz; anahtarsız da cevap verir
 ```
 

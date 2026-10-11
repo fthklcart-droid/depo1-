@@ -129,6 +129,12 @@ cevap **akışlı (SSE, `chat.completion.chunk`)** gelir ve web arayüzünde kel
   ve hata mesajlarında `***` ile gizlenir. Anahtarı ortam değişkeninden de verebilirsin (`SIRIUS_LLM_API_KEY` ya da `OPENAI_API_KEY`).
 * Sesli mod (`--live`) şimdilik yalnızca **Gemini Live** ile çalışır. Gemini'de cevap akışsız tek parça gelir.
 
+### Sade mod (yalnızca avatar)
+
+Web arayüzü varsayılan olarak **yalnızca avatarı** gösterir: büyük avatar, ses dalgası, cevap satırı ve yazma kutusu. Yan paneller (etkinlik, takvim, yetenekler) gizlenir.
+**PANELLER** düğmesi tam görünüme döner (düğme **SADE** olur); tercihin hatırlanır. Sade modda avatara tıklamak sıradaki avatara geçer.
+Onay kartı her iki modda da ekranın ortasında çıkar ve arka planı karartır; panelleri gizlemek onay vermeyi engellemez (`tests/test_ui_sade.py`, gerçek tarayıcıda).
+
 ### HOLO el kontrolü (`holo/`)
 
 [zubair-trabzada/holo-gestures](https://github.com/zubair-trabzada/holo-gestures) (MIT) projesi SIRIUS'a eklendi: **kameranla havada tut, fırlat, büyüt, ✌ ile sıfırla.**

@@ -31,6 +31,7 @@ button{font-family:inherit;cursor:pointer}
 .log{font:12px/1.55 'IBM Plex Mono',monospace;display:flex;flex-direction:column;gap:7px;overflow:auto;min-height:0;flex:1}
 .log div{word-break:break-word}.sys{color:var(--mute)}.you{color:var(--ice)}.bot{color:var(--amber)}.err{color:#FF8A8A}
 .stage{width:360px;height:360px;flex:none}
+.stage canvas{display:block;-webkit-mask-image:radial-gradient(ellipse 52% 50% at 50% 50%,#000 72%,transparent 100%);mask-image:radial-gradient(ellipse 52% 50% at 50% 50%,#000 72%,transparent 100%)}
 .say{min-height:44px;max-width:560px;text-align:center;font-size:17px;line-height:1.4}
 .row{display:flex;gap:10px;align-items:center;width:min(560px,100%)}
 input[type=text]{flex:1;height:44px;background:#070E18;border:1px solid var(--line2);border-radius:2px;color:var(--text);padding:0 14px;font:13px 'IBM Plex Mono',monospace}
@@ -38,7 +39,7 @@ input[type=text]{flex:1;height:44px;background:#070E18;border:1px solid var(--li
 .sw .btn{height:32px;padding:0 12px;font-size:12px;letter-spacing:.1em}
 .tag{padding:5px 9px;border:1px solid var(--line2);border-radius:2px;font:12px 'IBM Plex Mono',monospace;color:#B7D3E6}
 .tags{display:flex;flex-wrap:wrap;gap:6px}
-.confirm{border:1px solid var(--amber);background:rgba(255,213,138,.07);padding:16px;display:none;flex-direction:column;gap:12px}
+.confirm{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);width:min(480px,92vw);z-index:7;border:1px solid var(--amber);background:#0B0F16;box-shadow:0 0 0 100vmax rgba(2,4,8,.55),0 10px 40px rgba(0,0,0,.6);padding:16px;display:none;flex-direction:column;gap:12px}
 .confirm.show{display:flex}
 .confirm pre{margin:0;font:12px 'IBM Plex Mono',monospace;color:#B7D3E6;padding:8px 10px;background:#070E18;white-space:pre-wrap;word-break:break-word}
 pre.c{margin:0;font:12px/1.5 'IBM Plex Mono',monospace;white-space:pre-wrap;word-break:break-word;max-height:220px;overflow:auto}
@@ -56,6 +57,13 @@ pre.c{margin:0;font:12px/1.5 'IBM Plex Mono',monospace;white-space:pre-wrap;word
 .warn{border-left:2px solid var(--amber);padding-left:12px}
 .acct{display:flex;align-items:center;gap:14px;padding:12px 14px;border:1px solid var(--line);background:var(--panel)}
 .mono{width:40px;height:40px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--mute)}
+/* sade mod: yalnızca avatar */
+.sade .left,.sade .right,.sade #avatars,.sade .sw,.sade .h.av,.sade #undoBtn,.sade #holoBtn{display:none}
+.sade .body{justify-content:center;padding:12px 24px}
+.sade .center{justify-content:center}
+.sade .say{font-size:22px;max-width:min(760px,92vw)}
+.sade #stage{cursor:pointer}
+.hint{font:12px 'IBM Plex Mono',monospace;color:var(--amber);min-height:16px}
 @media (max-width:1100px){.body{flex-direction:column;overflow:auto}.left,.right{width:auto}.left .log{max-height:200px}}
 </style>
 </head>
@@ -66,6 +74,7 @@ pre.c{margin:0;font:12px/1.5 'IBM Plex Mono',monospace;white-space:pre-wrap;word
     <div class="logo">SIRIUS</div>
     <div class="chip"><span class="dot" id="stDot"></span><span id="stLabel">BAĞLANIYOR</span></div>
     <div class="sp"></div>
+    <button class="btn" id="sadeBtn" title="Yalnızca avatar / tüm paneller">PANELLER</button>
     <button class="btn" id="undoBtn" title="Son işlemi geri al">GERİ AL</button>
     <button class="btn" id="holoBtn" title="Kamerayla el hareketleriyle notlarını kontrol et">EL KONTROLÜ</button>
     <button class="btn on" id="connBtn">BAĞLANTILAR</button>
@@ -79,22 +88,23 @@ pre.c{margin:0;font:12px/1.5 'IBM Plex Mono',monospace;white-space:pre-wrap;word
       <div class="stage" id="stage"></div>
       <canvas id="wave" width="560" height="60" role="img" aria-label="Ses dalga biçimi" style="width:min(560px,100%);height:60px"></canvas>
       <div class="say" id="say"></div>
+      <div class="hint" id="hint"></div>
       <form class="row" id="form"><input type="text" id="inp" autocomplete="off" aria-label="Komut yaz" placeholder="Bir şey yaz ya da iste…"><button class="btn solid" style="width:56px;padding:0" aria-label="Gönder">↵</button></form>
-      <div class="h">AVATAR</div>
+      <div class="h av">AVATAR</div>
       <div class="sw" id="avatars"></div>
     </div>
     <div class="col right">
       <div class="panel"><div class="h">BUGÜN</div><pre class="c" id="today">…</pre></div>
       <div class="panel"><div class="h">YETENEKLER <span id="nTools"></span></div><div class="tags" id="tools"></div></div>
-      <div class="confirm" id="confirm">
-        <div class="h" style="color:var(--amber)">ONAY GEREKİYOR</div>
-        <pre id="cText"></pre>
-        <div style="display:flex;gap:8px"><button class="btn" style="flex:1;color:var(--text);border-color:#3A5670" id="cNo">REDDET</button><button class="btn solid" style="flex:1;background:var(--amber)" id="cYes">ONAYLA</button></div>
-        <div class="note">Bu düğmeyi yalnızca sen basabilirsin. Model kendi kendine onaylayamaz.</div>
-      </div>
       <div class="panel" id="contentBox" style="display:none"><div class="h" id="cTitle"></div><pre class="c" id="cBody"></pre></div>
     </div>
   </div>
+</div>
+<div class="confirm" id="confirm">
+  <div class="h" style="color:var(--amber)">ONAY GEREKİYOR</div>
+  <pre id="cText"></pre>
+  <div style="display:flex;gap:8px"><button class="btn" style="flex:1;color:var(--text);border-color:#3A5670" id="cNo">REDDET</button><button class="btn solid" style="flex:1;background:var(--amber)" id="cYes">ONAYLA</button></div>
+  <div class="note">Bu düğmeyi yalnızca sen basabilirsin. Model kendi kendine onaylayamaz.</div>
 </div>
 
 <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
@@ -117,20 +127,32 @@ const get = p => fetch(p, {headers: {'X-Token': TOKEN}}).then(r => r.json());
 /* ---- state, avatars ---- */
 const COLORS = {LISTENING: '#8FE3FF', THINKING: '#FFD58A', SPEAKING: '#CFF3FF', SLEEPING: '#6B8499'};
 const LABELS = {LISTENING: 'DİNLİYOR', THINKING: 'DÜŞÜNÜYOR', SPEAKING: 'KONUŞUYOR', SLEEPING: 'UYKUDA'};
-let mode = 'LISTENING', stop = null, kind = 'holo';
-try { kind = localStorage.getItem('sirius.avatar') || 'holo'; } catch (e) {}
+let mode = 'LISTENING', stop = null, kind = 'holo', sade = true;
+try { kind = localStorage.getItem('sirius.avatar') || 'holo'; sade = localStorage.getItem('sirius.sade') !== '0'; } catch (e) {}
 const KINDS = [['holo', 'HOLO KAFA'], ['neural', 'NÖRON'], ['brain', 'BEYİN'], ['sphere', 'KUANTUM'], ['scan', 'ALTIN']];
+function stageSize() { return sade ? Math.max(260, Math.min(620, Math.floor(Math.min(innerHeight * 0.58, innerWidth * 0.92)))) : 360; }
+function applySade() {
+  document.querySelector('.app').classList.toggle('sade', sade);
+  $('sadeBtn').textContent = sade ? 'PANELLER' : 'SADE';
+  $('sadeBtn').title = sade ? 'Tüm panelleri göster' : 'Yalnızca avatar';
+  try { localStorage.setItem('sirius.sade', sade ? '1' : '0'); } catch (e) {}
+  setAvatar(kind);
+}
 function setAvatar(k) {
   kind = k; try { localStorage.setItem('sirius.avatar', k); } catch (e) {}
   if (stop) stop();
   const st = $('stage'); st.textContent = '';
   const c = el('canvas'); st.appendChild(c);
-  stop = S3D.mount(c, k, () => mode);
+  stop = S3D.mount(c, k, () => mode, stageSize());
+  st.style.width = st.style.height = stageSize() + 'px';
   document.querySelectorAll('#avatars button').forEach(b => b.classList.toggle('on', b.dataset.k === k));
 }
 KINDS.forEach(([k, l]) => { const b = el('button', 'btn', l); b.dataset.k = k; b.onclick = () => setAvatar(k); $('avatars').appendChild(b); });
 function setMode(m) { mode = m; $('stLabel').textContent = LABELS[m] || m; $('stDot').style.background = COLORS[m]; }
-setAvatar(kind); setMode('LISTENING');
+$('sadeBtn').onclick = () => { sade = !sade; $('hint').textContent = ''; applySade(); };
+$('stage').onclick = () => { if (sade) { const i = KINDS.findIndex(x => x[0] === kind); setAvatar(KINDS[(i + 1) % KINDS.length][0]); } };   // sade modda avatara tıkla: sıradaki
+let rz = 0; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (sade) setAvatar(kind); }, 250); });
+applySade(); setMode('LISTENING');
 
 /* ---- waveform ---- */
 const wc = $('wave'), wx = wc.getContext('2d');
@@ -158,7 +180,7 @@ es.onmessage = m => {
   else if (e.type === 'log') addLog(e.line);
   else if (e.type === 'delta') { if (fresh) { $('say').textContent = ''; fresh = false; } $('say').textContent += e.text; }
   else if (e.type === 'say') { $('say').textContent = e.text; fresh = true; }
-  else if (e.type === 'content') { $('contentBox').style.display = 'flex'; $('cTitle').textContent = e.title; $('cBody').textContent = e.body; }
+  else if (e.type === 'content') { if (sade) $('hint').textContent = 'Sonuç hazır: görmek için PANELLER düğmesine bas.'; $('contentBox').style.display = 'flex'; $('cTitle').textContent = e.title; $('cBody').textContent = e.body; }
   else if (e.type === 'confirm') { cid = e.id; $('cText').textContent = e.prompt; $('confirm').classList.add('show'); $('cYes').focus(); }
   else if (e.type === 'confirm_done') { if (cid === e.id) $('confirm').classList.remove('show'); }
 };

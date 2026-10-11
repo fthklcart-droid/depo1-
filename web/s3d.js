@@ -192,7 +192,7 @@
   KINDS.holo = function (W, H) {                                 // wireframe half / particle half head with eye flare + binary rain
     const head = headMesh(60, 72), bust = bustMesh(12, 72);
     const hb = Buf(head.count), bb = Buf(bust.count), cam = new Cam(W, H, W * 0.325, W / 2, H * 0.43);
-    const R = rng(7), st = { r: Array.from({ length: 40 }, R) };
+    const R = rng(7), st = { r: Array.from({ length: 64 }, R) };
     const C = [120, 205, 255], P = [225, 120, 255];
     const dust = Array.from({ length: 70 }, () => ({ a: R() * TAU, r: 0.9 + R() * 0.9, y: R() * 2.4 - 1.1, s: 0.2 + R() * 0.5 }));
     return function frame(ctx, t, S) {
@@ -433,8 +433,8 @@
   };
 
   /* ---------- mount ---------- */
-  function mount(canvas, kind, getMode) {
-    const W = 360, H = 360, dpr = Math.min(2, window.devicePixelRatio || 1);
+  function mount(canvas, kind, getMode, size) {
+    const W = Math.max(240, Math.min(900, Math.round(size || 360))), H = W, dpr = Math.min(2, window.devicePixelRatio || 1);
     canvas.width = W * dpr; canvas.height = H * dpr; canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
     const ctx = canvas.getContext('2d'); ctx.scale(dpr, dpr);
     const frame = KINDS[kind](W, H), S = Object.assign({}, MODES.LISTENING); let raf = 0, last = performance.now(), t0 = last, stopped = false, visible = true;
