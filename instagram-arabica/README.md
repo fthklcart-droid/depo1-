@@ -13,6 +13,7 @@ Hesap: https://www.instagram.com/arabica.huseyingazi/
 | `03-caption-hashtag.md` | Caption şablonları ve hashtag setleri |
 | `04-buyume-analiz.md` | Hesap denetimi, rakip analizi, yerel SEO, takip metrikleri |
 | `05-gelisim-plani-30-gun.md` | 30 günlük büyüme planı, takvim, Reels senaryoları, reklam |
+| `06-reklam-plani-5000tl.md` | 5.000 TL reklam bütçe dağılımı, hedefleme, karar kuralları |
 
 ## Yol haritası
 1. Mevcut hesabı denetle (`04`): ekran görüntüleri + sayılar.
