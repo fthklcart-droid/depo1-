@@ -16,6 +16,7 @@ Hesap: https://www.instagram.com/arabica.huseyingazi/
 | `06-reklam-plani-5000tl.md` | 5.000 TL reklam bütçe dağılımı, hedefleme, karar kuralları |
 | `07-reklam-kreatif-paketi.md` | 4 test reklamı: çekim listesi, ekran yazısı, reklam metni, başlık |
 | `08-ilk-2-hafta-caption.md` | İlk 2 hafta için hazır caption, story ve hashtag metinleri |
+| `09-genel-analiz.md` | Ekran görüntülerine dayalı genel analiz ve öncelikli aksiyonlar |
 
 ## Yol haritası
 1. Mevcut hesabı denetle (`04`): ekran görüntüleri + sayılar.

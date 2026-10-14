@@ -1,8 +1,8 @@
 # Marka Kimliği
 
 ## Temel bilgiler
-- Marka/şube adı: Arabica – Hüseyingazi `[DOLDUR: doğru yazım, şube mi bağımsız mı]`
-- Konum: Hüseyingazi `[DOLDUR: ilçe/şehir, adres, Google Maps linki]`
+- Marka/şube adı: Arabica Coffee House – Hüseyingazi
+- Konum: Hüseyingazi, Ankara · Saat: her gün 08:00–23:00 · Ücretsiz Wi-Fi (afişlerden)
 - Çalışma saatleri: `[DOLDUR]`
 - Hedef kitle: `[DOLDUR: öğrenci, çalışan, mahalle sakinleri…]`
 - Fark yaratan 3 şey: `[DOLDUR]`
