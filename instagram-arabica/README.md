@@ -12,6 +12,7 @@ Hesap: https://www.instagram.com/arabica.huseyingazi/
 | `02-icerik-plani.md` | İçerik sütunları, haftalık ritim, aylık takvim şablonu |
 | `03-caption-hashtag.md` | Caption şablonları ve hashtag setleri |
 | `04-buyume-analiz.md` | Hesap denetimi, rakip analizi, yerel SEO, takip metrikleri |
+| `05-gelisim-plani-30-gun.md` | 30 günlük büyüme planı, takvim, Reels senaryoları, reklam |
 
 ## Yol haritası
 1. Mevcut hesabı denetle (`04`): ekran görüntüleri + sayılar.
